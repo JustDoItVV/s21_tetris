@@ -50,16 +50,16 @@ typedef struct gameParams {
     int figureColIdx;
 } GameParams_t;
 
-void userInput(UserAction_t action, bool hold, GameParams_t *params);
-GameInfo_t updateCurrentState(GameParams_t *params);
+void userInput(UserAction_t action, bool hold);
+GameInfo_t updateCurrentState();
 
 typedef void (*funcPointer)(GameParams_t *params);
 
+GameParams_t *updateParams(GameParams_t *params);
 void initializeParams(GameParams_t *params);
 void removeParams(GameParams_t *params);
 
 void startGame(GameParams_t *params);
-
 void spawnNextFigure(GameParams_t *params);
 // bool canRotate(GameParams_t *params);
 // void rotateFigure(GameParams_t *params);

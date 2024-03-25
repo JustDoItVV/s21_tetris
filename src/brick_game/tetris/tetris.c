@@ -16,25 +16,31 @@ funcPointer fsmTable[6][8] = {
   {NULL, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
 };
 
-void userInput(UserAction_t action, bool hold, GameParams_t *params) {
-  if (hold)
-    hold = hold;
-
+void userInput(UserAction_t action, bool hold) {
+  if (hold) hold = hold;
+  GameParams_t *params = updateParams(NULL);
   GameState_t state = params->state;
   funcPointer func = fsmTable[state][action];
 
-  if (func)
-    func(params);
+  if (func) func(params);
 }
 
-GameInfo_t updateCurrentState(GameParams_t *params) {
-  // static GameInfo_t data;
-  if (canMoveDown(params))
-    moveFigureDown(params);
-  else
-    spawnNextFigure(params);
+GameInfo_t updateCurrentState() {
+  GameParams_t *params = updateParams(NULL);
+  
+  if (canMoveDown(params)) moveFigureDown(params);
+  else spawnNextFigure(params);
 
   return *params->data;
+}
+
+GameParams_t *updateParams(GameParams_t *params) {
+  static GameParams_t *data;
+
+  if (params != NULL)
+    data = params;
+  
+  return data;
 }
 
 void initializeParams(GameParams_t *params) {

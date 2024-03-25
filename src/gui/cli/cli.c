@@ -29,18 +29,19 @@ void gameLoop() {
   bool hold = false;
 
   initializeParams(&params);
+  updateParams(&params);
 
   while (params.isActive) {
     pressed_key = getch();
     action = getAction(pressed_key);
     if (action != Action) {
       params.state = MOVING;
-      userInput(action, hold, &params);
+      userInput(action, hold);
     }
 
     if (params.state != GAMEOVER && counter >= 1.50 - params.data->speed * SPEED_RATE) {
       if (params.state != START) {
-        updateCurrentState(&params);
+        updateCurrentState();
       }
       counter = 0.;
     }
