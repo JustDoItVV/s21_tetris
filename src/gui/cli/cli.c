@@ -13,7 +13,7 @@ void initGui() {
 void destroyGui() {
   printw("\nThe Game is ended. Closing application...\n");
   refresh();
-  sleep(4);
+  sleep(1);
   clear();
   refresh();
   endwin();
@@ -34,12 +34,6 @@ void gameLoop() {
   updateParams(&params);
 
   while (params.isActive) {
-    pressed_key = getch();
-    action = getAction(pressed_key);
-    if (action != Action) {
-      userInput(action, hold);
-    }
-
     if (counter >= 1.50 - params.data->speed * SPEED_RATE) {
       if (params.state == GAME) {
         updateCurrentState();
@@ -57,6 +51,12 @@ void gameLoop() {
       drawField(params.data->field);
     } else if (params.state == GAMEOVER)
       drawGameoverScreen(params.data);
+    
+    pressed_key = getch();
+    action = getAction(pressed_key);
+    if (action != Action) {
+      userInput(action, hold);
+    }
   }
 }
 

@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
+
+#define M_PI_2 1.57079632679489661923
 
 #define FIELD_HEIGHT 26
 #define FIELD_WIDTH 16
@@ -73,6 +76,7 @@ int generateRandomFigure(int **next);
 void spawnNextFigure(GameParams_t *params);
 void moveLeft(GameParams_t *params);
 void moveRight(GameParams_t *params);
+void rotate(GameParams_t *params);
 void moveDown(GameParams_t *params);
 void shift(GameParams_t *params);
 void attach(GameParams_t *params);

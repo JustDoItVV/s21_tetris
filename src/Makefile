@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -I./brick_game/tetris -I./gui/cli -Wall -Wextra -Werror -std=c11 -Wpedantic
 LDFLAGS=-L./brick_game/tetris -ltetris_game -lncurses
-LIB_FLAGS = $(shell pkg-config check ncurses --cflags --libs)
+LIB_FLAGS = $(shell pkg-config check ncurses --static --cflags --libs)
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage
 
 OS = $(shell uname -s)
