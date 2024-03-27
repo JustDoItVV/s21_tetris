@@ -4,16 +4,10 @@
 funcPointer fsmTable[STATES_COUNT][SIGNALS_COUNT] = {
   // Start
   {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
-  // Spawn
-  {NULL, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
-  // Moving - user input processing
-  {NULL, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
-  // Shifting - move current block 1 pixel down
-  {NULL, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
-  // Attaching
-  {NULL, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
+  // Game
+  {NULL, NULL, removeParams, moveLeft, moveRight, NULL, moveDown, NULL},
   // Gameover
-  {NULL, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
+  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
 };
 
 void userInput(UserAction_t action, bool hold) {
@@ -44,11 +38,7 @@ GameParams_t *updateParams(GameParams_t *params) {
 
 void initializeParams(GameParams_t *params) {
   params->data->field = allocate2DArray(FIELD_HEIGHT, FIELD_WIDTH);
-  for (int row = 0; row < FIELD_HEIGHT; row++)
-    for (int col = 0; col < FIELD_WIDTH; col++)
-      if (row > 22 || col < 3 || col > 12)
-        params->data->field[row][col] = 1;
-  
+  resetField(params);  
   params->data->next = allocate2DArray(FIGURE_HEIGHT, FIGURE_WIDTH);
   params->data->score = 0;
   params->data->high_score = 0;
@@ -58,6 +48,12 @@ void initializeParams(GameParams_t *params) {
   params->figure->typeNext = generateRandomFigure(params->data->next);
   params->state = START;
   params->isActive = true;
+}
+
+void resetField(GameParams_t *params) {
+  for (int row = 0; row < FIELD_HEIGHT; row++)
+    for (int col = 0; col < FIELD_WIDTH; col++)
+      params->data->field[row][col] = (row > 22 || col < 3 || col > 12) ? 1 : 0;
 }
 
 void removeParams(GameParams_t *params) {
@@ -116,7 +112,11 @@ int generateRandomFigure(int **next) {
 }
 
 void startGame(GameParams_t *params) {
-  params->state = SPAWN;
+  resetField(params);
+  params->data->score = 0;
+  params->data->speed = 1;
+  params->data->level = 1;
+  params->state = GAME;
   spawnNextFigure(params);
 }
 
@@ -133,7 +133,6 @@ void spawnNextFigure(GameParams_t *params) {
   }
 
   params->figure->typeNext = generateRandomFigure(params->data->next);
-  params->state = SHIFTING;
 }
 
 void shift(GameParams_t *params) {
@@ -158,8 +157,110 @@ void shift(GameParams_t *params) {
   
   params->figure->y = y;
 
+  if (!canShift)
+    attach(params);
+}
+
+void attach(GameParams_t *params) {
+  spawnNextFigure(params);
+  int y = params->figure->y;
+  int x = params->figure->x;
+  int type = params->figure->type;
+
+  for (int i = 1; i < 8; i += 2)
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 0;
+  
+  y++;
+  bool canShift = true;
+  for (int i = 1; i < 8 && canShift; i += 2)
+    if (params->data->field[figures[type][i - 1] + y][figures[type][i] + x])
+      canShift = false;
+  
+  if (!canShift)
+    y--;
+  
+  for (int i = 1; i < 8; i += 2)
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 1;
+  
+  params->figure->y = y;
+
   if (!canShift) {
-    params->state = ATTACHING;
-    spawnNextFigure(params);
-  }  
+    params->state = GAMEOVER;
+  }
+}
+
+void moveLeft(GameParams_t *params) {
+  int y = params->figure->y;
+  int x = params->figure->x;
+  int type = params->figure->type;
+
+  for (int i = 1; i < 8; i += 2)
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 0;
+  
+  x--;
+  bool canMove = true;
+  for (int i = 1; i < 8 && canMove; i += 2)
+    if (params->data->field[figures[type][i - 1] + y][figures[type][i] + x])
+      canMove = false;
+  
+  if (!canMove) {
+    x++;
+  }
+  
+  for (int i = 1; i < 8; i += 2)
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 1;
+  
+  params->figure->x = x;
+}
+
+void moveRight(GameParams_t *params) {
+  int y = params->figure->y;
+  int x = params->figure->x;
+  int type = params->figure->type;
+
+  for (int i = 1; i < 8; i += 2)
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 0;
+  
+  x++;
+  bool canMove = true;
+  for (int i = 1; i < 8 && canMove; i += 2)
+    if (params->data->field[figures[type][i - 1] + y][figures[type][i] + x])
+      canMove = false;
+  
+  if (!canMove) {
+    x--;
+  }
+  
+  for (int i = 1; i < 8; i += 2)
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 1;
+  
+  params->figure->x = x;
+}
+
+void moveDown(GameParams_t *params) {
+  int y = params->figure->y;
+  int x = params->figure->x;
+  int type = params->figure->type;
+
+  for (int i = 1; i < 8; i += 2)
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 0;
+  
+  bool canMove = true;
+  while (canMove) {
+    y++;
+  
+    for (int i = 1; i < 8 && canMove; i += 2)
+      if (params->data->field[figures[type][i - 1] + y][figures[type][i] + x])
+        canMove = false;
+    
+    if (!canMove) {
+      y--;
+    }
+  }
+  
+  for (int i = 1; i < 8; i += 2)
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 1;
+  
+  params->figure->y = y;
+  attach(params);
 }
