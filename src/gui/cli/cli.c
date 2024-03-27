@@ -26,7 +26,7 @@ void gameLoop() {
   params.data = &data;
   params.figure = &figure;
   UserAction_t action;
-  int pressed_key;
+  int pressedKey;
   double counter = 0.;
   bool hold = false;
 
@@ -52,16 +52,16 @@ void gameLoop() {
     } else if (params.state == GAMEOVER)
       drawGameoverScreen(params.data);
     
-    pressed_key = getch();
-    action = getAction(pressed_key);
-    if (action != Action) {
+    pressedKey = getch();
+    action = getAction(pressedKey);
+    if (action != Pass) {
       userInput(action, hold);
     }
   }
 }
 
 UserAction_t getAction(int pressedKey) {
-  UserAction_t action = Action;
+  UserAction_t action = Pass;
 
   if (pressedKey == 10)
     action = Start;
@@ -77,6 +77,8 @@ UserAction_t getAction(int pressedKey) {
     action = Up;
   else if (pressedKey == KEY_DOWN)
     action = Down;
+  else if (pressedKey == 'r')
+    action = Action;
   
   return action;
 }

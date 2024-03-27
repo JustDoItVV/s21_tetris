@@ -17,7 +17,7 @@
 #define PIXEL_FIGURE 1
 
 #define STATES_COUNT 6
-#define SIGNALS_COUNT 8
+#define SIGNALS_COUNT 9
 
 typedef enum {
     START = 0,
@@ -33,7 +33,8 @@ typedef enum {
   Right,
   Up,
   Down,
-  Action
+  Action,
+  Pass,
 } UserAction_t;
 
 typedef struct {

@@ -3,11 +3,11 @@
 // Rows - states, cols - user input
 funcPointer fsmTable[STATES_COUNT][SIGNALS_COUNT] = {
   // Start
-  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
+  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL},
   // Game
-  {NULL, NULL, removeParams, moveLeft, moveRight, rotate, moveDown, NULL},
+  {NULL, NULL, removeParams, moveLeft, moveRight, NULL, moveDown, rotate, NULL},
   // Gameover
-  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
+  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL},
 };
 
 void userInput(UserAction_t action, bool hold) {
