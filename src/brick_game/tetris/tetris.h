@@ -81,6 +81,10 @@ void moveDown(GameParams_t *params);
 void shift(GameParams_t *params);
 void attach(GameParams_t *params);
 
+void addFigure(GameParams_t *params);
+bool isFigureNotCollide(GameParams_t *params);
+void clearFigure(GameParams_t *params);
+
 int **allocate2DArray(int nRows, int nCols);
 
 #endif
