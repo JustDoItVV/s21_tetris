@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
+
+#define M_PI_2 1.57079632679489661923
 
 #define FIELD_HEIGHT 26
 #define FIELD_WIDTH 16
@@ -14,7 +17,7 @@
 #define PIXEL_FIGURE 1
 
 #define STATES_COUNT 6
-#define SIGNALS_COUNT 8
+#define SIGNALS_COUNT 9
 
 typedef enum {
     START = 0,
@@ -30,7 +33,8 @@ typedef enum {
   Right,
   Up,
   Down,
-  Action
+  Action,
+  Pass,
 } UserAction_t;
 
 typedef struct {
@@ -73,9 +77,14 @@ int generateRandomFigure(int **next);
 void spawnNextFigure(GameParams_t *params);
 void moveLeft(GameParams_t *params);
 void moveRight(GameParams_t *params);
+void rotate(GameParams_t *params);
 void moveDown(GameParams_t *params);
 void shift(GameParams_t *params);
 void attach(GameParams_t *params);
+
+void addFigure(GameParams_t *params);
+bool isFigureNotCollide(GameParams_t *params);
+void clearFigure(GameParams_t *params);
 
 int **allocate2DArray(int nRows, int nCols);
 

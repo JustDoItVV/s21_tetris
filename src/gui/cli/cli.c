@@ -13,7 +13,7 @@ void initGui() {
 void destroyGui() {
   printw("\nThe Game is ended. Closing application...\n");
   refresh();
-  sleep(4);
+  sleep(1);
   clear();
   refresh();
   endwin();
@@ -26,7 +26,7 @@ void gameLoop() {
   params.data = &data;
   params.figure = &figure;
   UserAction_t action;
-  int pressed_key;
+  int pressedKey;
   double counter = 0.;
   bool hold = false;
 
@@ -34,12 +34,6 @@ void gameLoop() {
   updateParams(&params);
 
   while (params.isActive) {
-    pressed_key = getch();
-    action = getAction(pressed_key);
-    if (action != Action) {
-      userInput(action, hold);
-    }
-
     if (counter >= 1.50 - params.data->speed * SPEED_RATE) {
       if (params.state == GAME) {
         updateCurrentState();
@@ -57,11 +51,17 @@ void gameLoop() {
       drawField(params.data->field);
     } else if (params.state == GAMEOVER)
       drawGameoverScreen(params.data);
+    
+    pressedKey = getch();
+    action = getAction(pressedKey);
+    if (action != Pass) {
+      userInput(action, hold);
+    }
   }
 }
 
 UserAction_t getAction(int pressedKey) {
-  UserAction_t action = Action;
+  UserAction_t action = Pass;
 
   if (pressedKey == 10)
     action = Start;
@@ -77,6 +77,8 @@ UserAction_t getAction(int pressedKey) {
     action = Up;
   else if (pressedKey == KEY_DOWN)
     action = Down;
+  else if (pressedKey == 'r')
+    action = Action;
   
   return action;
 }
