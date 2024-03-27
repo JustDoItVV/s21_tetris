@@ -25,6 +25,6 @@ UserAction_t getAction(int pressedKey);
 void drawGui();
 void drawField(int **field);
 void drawInfo(GameInfo_t *data);
-void drawStartScreen();
+void drawStartScreen(GameInfo_t *data);
 
 #endif

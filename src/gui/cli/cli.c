@@ -22,7 +22,9 @@ void destroyGui() {
 void gameLoop() {
   GameParams_t params;
   GameInfo_t data;
+  Figure_t figure;
   params.data = &data;
+  params.figure = &figure;
   UserAction_t action;
   int pressed_key;
   double counter = 0.;
@@ -35,7 +37,6 @@ void gameLoop() {
     pressed_key = getch();
     action = getAction(pressed_key);
     if (action != Action) {
-      params.state = MOVING;
       userInput(action, hold);
     }
 
@@ -49,14 +50,14 @@ void gameLoop() {
     counter = counter + READ_DELAY * 1E-3;
 
     if (params.state == START)
-      drawStartScreen();
+      drawStartScreen(params.data);
     else if (params.state != GAMEOVER) {
       drawGui();
       drawInfo(params.data);
       drawField(params.data->field);
     }
-    
-    // flushinp(); 
+    printw("\nstate: %d\n", params.state);
+    printw("\ncounter: %f\n", counter);
   }
 }
 
@@ -103,11 +104,11 @@ void drawGui() {
 void drawField(int **field) {
   for (int row = 0; row < FIELD_SIZE_Y; row++)
     for (int col = 0; col < FIELD_SIZE_X; col++)
-      if (field[row][col]) {
+      if (field[row + 3][col + 3]) {
         mvaddch(1 + row, 1 + col * 2, ACS_CKBOARD);
         mvaddch(1 + row, 1 + col * 2 + 1, ACS_CKBOARD);
       }
-  move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);
+  move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);      
 }
 
 void drawInfo(GameInfo_t *data) {
@@ -116,19 +117,19 @@ void drawInfo(GameInfo_t *data) {
   mvprintw(6, FIELD_SIZE_X * 2 + 3, "LEVEL: %d", data->level);
   mvprintw(8, FIELD_SIZE_X * 2 + 3, "SPEED: %d", data->speed);
   mvprintw(10, FIELD_SIZE_X * 2 + 3, "NEXT");
+  for (int row = 0; row < FIGURE_HEIGHT; row++)
+    for (int col = 0; col < FIGURE_WIDTH; col++) {
+      if (data->next[row][col]) {
+        mvaddch(12 + row, FIELD_SIZE_X * 2 + 3 + col * 2, ACS_CKBOARD);
+        mvaddch(12 + row, FIELD_SIZE_X * 2 + 3 + col * 2 + 1, ACS_CKBOARD);
+      }
+    }
   move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);
 }
 
-void drawStartScreen() {
-  GameInfo_t data;
-  data.score = 0;
-  data.high_score = 0;
-  data.level = 1;
-  data.speed = 1;
-  data.pause = 1;
-
+void drawStartScreen(GameInfo_t *data) {
   drawGui();
-  drawInfo(&data);
+  drawInfo(data);
 
   mvprintw(1 + FIELD_SIZE_Y / 2, 1, "Press ENTER to start");
 
