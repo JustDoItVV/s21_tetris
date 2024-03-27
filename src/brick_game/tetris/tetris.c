@@ -1,13 +1,13 @@
 #include "tetris.h"
 
 // Rows - states, cols - user input
-funcPointer fsmTable[6][8] = {
+funcPointer fsmTable[STATES_COUNT][SIGNALS_COUNT] = {
   // Start
   {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
   // Spawn
   {NULL, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
   // Moving - user input processing
-  {NULL, NULL, removeParams, moveFigureLeft, moveFigureRight, NULL, moveFigureDown, NULL},
+  {NULL, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
   // Shifting - move current block 1 pixel down
   {NULL, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},
   // Attaching
@@ -28,8 +28,7 @@ void userInput(UserAction_t action, bool hold) {
 GameInfo_t updateCurrentState() {
   GameParams_t *params = updateParams(NULL);
   
-  if (canMoveDown(params)) moveFigureDown(params);
-  else spawnNextFigure(params);
+  shift(params);
 
   return *params->data;
 }
@@ -45,18 +44,20 @@ GameParams_t *updateParams(GameParams_t *params) {
 
 void initializeParams(GameParams_t *params) {
   params->data->field = allocate2DArray(FIELD_HEIGHT, FIELD_WIDTH);
+  for (int row = 0; row < FIELD_HEIGHT; row++)
+    for (int col = 0; col < FIELD_WIDTH; col++)
+      if (row > 22 || col < 3 || col > 12)
+        params->data->field[row][col] = 1;
+  
   params->data->next = allocate2DArray(FIGURE_HEIGHT, FIGURE_WIDTH);
   params->data->score = 0;
   params->data->high_score = 0;
   params->data->level = 1;
   params->data->speed = 1;
   params->data->pause = 1;
-  // generateRandomFigure(gameInfo->next);
-  generatePixel(params->data->next);
+  params->figure->typeNext = generateRandomFigure(params->data->next);
   params->state = START;
   params->isActive = true;
-  params->figureRowIdx = 0;
-  params->figureColIdx = FIELD_WIDTH / 2;
 }
 
 void removeParams(GameParams_t *params) {
@@ -90,8 +91,28 @@ int **allocate2DArray(int nRows, int nCols) {
   return arr;
 }
 
-void generatePixel(int **figure) {
-  figure[0][0] = 1;
+int figures[7][8] = {
+  {0, -1, 0, 0, 0, 1, 0, 2},
+  {-1, -1, 0, -1, 0, 0, 0, 1},
+  {0, -1, 0, 0, 0, 1, -1, 1},
+  {-1, 0, -1, 1, 0, 0, 0, 1},
+  {0, -1, 0, 0, -1, 0, -1, 1},
+  {0, -1, 0, 0, -1, 0, 0, 1},
+  {-1, -1, -1, 0, 0, 0, 0, 1},
+};
+
+int generateRandomFigure(int **next) {
+  srand(time(NULL));
+  int type = rand() % 7;
+
+  for (int row = 0; row < FIGURE_HEIGHT; row++)
+    for (int col = 0; col < FIGURE_WIDTH; col++)
+      next[row][col] = 0;
+  
+  for (int i = 1; i < 8; i += 2)
+    next[figures[type][i - 1] + 1][figures[type][i] + 1] = 1;
+  
+  return type;
 }
 
 void startGame(GameParams_t *params) {
@@ -100,112 +121,45 @@ void startGame(GameParams_t *params) {
 }
 
 void spawnNextFigure(GameParams_t *params) {
-  params->figureRowIdx = 0;
-  params->figureColIdx = FIELD_WIDTH / 2;
+  int y = 2;
+  int x = FIELD_WIDTH / 2;
+  int type = params->figure->typeNext;
+  params->figure->type = type;
+  params->figure->x = x;
+  params->figure->y = y;
   
-  for (size_t figRowIdx = 0; figRowIdx < 1; figRowIdx++) {
-    for (size_t figColIdx = 0; figColIdx < 1; figColIdx++) {
-      int rowIdx = params->figureRowIdx;
-      int colIdx = params->figureColIdx;
-      params->data->field[rowIdx][colIdx] = params->data->next[figRowIdx][figColIdx];
-    }
+  for (int i = 1; i < 8; i += 2) {
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 1;
   }
 
-  // generateRandomFigure(gameInfo->next);
-  generatePixel(params->data->next);
+  params->figure->typeNext = generateRandomFigure(params->data->next);
   params->state = SHIFTING;
 }
 
-bool canMoveDown(GameParams_t *params) {
-  bool response = true;
+void shift(GameParams_t *params) {
+  int y = params->figure->y;
+  int x = params->figure->x;
+  int type = params->figure->type;
 
-  for (int row = 0; row < 1; row++) {
-    for (int col = 0; col < 1; col++) {
-      if (params->data->next[row][col]) {
-        if ((row + 1 + params->figureRowIdx) > (FIELD_HEIGHT - 1) || params->data->field[row + params->figureRowIdx + 1][col + params->figureColIdx]) {
-          response = false;
-        }
-      }
-    }
-  }
+  for (int i = 1; i < 8; i += 2)
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 0;
   
-  return response;
+  y++;
+  bool canShift = true;
+  for (int i = 1; i < 8 && canShift; i += 2)
+    if (params->data->field[figures[type][i - 1] + y][figures[type][i] + x])
+      canShift = false;
+  
+  if (!canShift)
+    y--;
+  
+  for (int i = 1; i < 8; i += 2)
+    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 1;
+  
+  params->figure->y = y;
+
+  if (!canShift) {
+    params->state = ATTACHING;
+    spawnNextFigure(params);
+  }  
 }
-
-void moveFigureDown(GameParams_t *params) {
-  if (canMoveDown(params)) {
-    params->data->field[params->figureRowIdx][params->figureColIdx] = 0;
-    params->figureRowIdx += 1;
-    params->data->field[params->figureRowIdx][params->figureColIdx] = 1;
-  }
-  params->state = SHIFTING;
-}
-
-void moveFigureLeft(GameParams_t *params) {
-  if (params->figureColIdx > 0) {
-    params->data->field[params->figureRowIdx][params->figureColIdx] = 0;
-    params->figureColIdx -= 1;
-    params->data->field[params->figureRowIdx][params->figureColIdx] = 1;
-  }
-  params->state = SHIFTING;
-}
-
-void moveFigureRight(GameParams_t *params) {
-  if (params->figureColIdx < FIELD_WIDTH - 1) {
-    params->data->field[params->figureRowIdx][params->figureColIdx] = 0;
-    params->figureColIdx += 1;
-    params->data->field[params->figureRowIdx][params->figureColIdx] = 1;
-  }
-  params->state = SHIFTING;
-}
-
-
-// void rotateFigure(GameInfo_t *gameInfo) {
-//   int temp[FIGURE_HEIGHT][FIGURE_WIDTH] = {0};
-//   for (int i = 0; i < FIGURE_HEIGHT; ++i) {
-//     for (int j = 0; j < FIGURE_WIDTH; ++j) {
-//       temp[j][FIGURE_HEIGHT - 1 - i] = gameInfo->next[i][j];
-//     }
-//   }
-//   for (int i = 0; i < FIGURE_HEIGHT; ++i) {
-//     for (int j = 0; j < FIGURE_WIDTH; ++j) {
-//       gameInfo->next[i][j] = temp[i][j];
-//     }
-//   }
-// }
-
-// bool canRotate(GameInfo_t *gameInfo) {
-//   // Создаем временную копию для фигуры для проверки после вращения
-//   int temp[FIGURE_HEIGHT][FIGURE_WIDTH] = {0};
-
-//   // Предполагаемое вращение (заполнение временного массива)
-//   for (int i = 0; i < FIGURE_HEIGHT; ++i) {
-//     for (int j = 0; j < FIGURE_WIDTH; ++j) {
-//       temp[i][j] = gameInfo->next[FIGURE_WIDTH - j - 1][i];
-//     }
-//   }
-
-//   // Проверяем, не выходит ли вращенная фигура за границы поля или не
-//   // сталкивается ли с другими фигурами
-//   for (int row = 0; row < FIGURE_HEIGHT; ++row) {
-//     for (int col = 0; col < FIGURE_WIDTH; ++col) {
-//       if (temp[row][col]) {
-//         int globalRow = row + gameInfo->figureRowIdx;
-//         int globalCol = col + gameInfo->figureColIdx;
-
-//         // Проверяем границы поля
-//         if (globalCol < 0 || globalCol >= FIELD_WIDTH ||
-//             globalRow >= FIELD_HEIGHT) {
-//           return false; // Вращение приведет к выходу за границы поля
-//         }
-
-//         // Проверяем столкновения с уже уложенными фигурами
-//         if (gameInfo->field[globalRow][globalCol]) {
-//           return false; // Вращение приведет к столкновению
-//         }
-//       }
-//     }
-//   }
-
-//   return true; // Вращение возможно
-// }

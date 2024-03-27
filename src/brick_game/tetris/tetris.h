@@ -1,16 +1,20 @@
 #ifndef TETRIS_H
 #define TETRIS_H
 
-#define FIELD_HEIGHT 20
-#define FIELD_WIDTH 10
-#define FIGURE_HEIGHT 4
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define FIELD_HEIGHT 26
+#define FIELD_WIDTH 16
+#define FIGURE_HEIGHT 2
 #define FIGURE_WIDTH 4
 #define PIXEL_EMPTY 0
 #define PIXEL_FIGURE 1
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+#define STATES_COUNT 6
+#define SIGNALS_COUNT 8
 
 typedef enum {
     START = 0,
@@ -42,12 +46,19 @@ typedef struct {
   int pause;
 } GameInfo_t;
 
+typedef struct {
+  int typeNext;
+  int type;
+  int rotation;
+  int x;
+  int y;
+} Figure_t;
+
 typedef struct gameParams {
     GameInfo_t *data;
     GameState_t state;
     bool isActive;
-    int figureRowIdx;
-    int figureColIdx;
+    Figure_t *figure;
 } GameParams_t;
 
 void userInput(UserAction_t action, bool hold);
@@ -60,15 +71,11 @@ void initializeParams(GameParams_t *params);
 void removeParams(GameParams_t *params);
 
 void startGame(GameParams_t *params);
+int generateRandomFigure(int **next);
 void spawnNextFigure(GameParams_t *params);
-// bool canRotate(GameParams_t *params);
-// void rotateFigure(GameParams_t *params);
-bool canMoveDown(GameParams_t *params);
-void moveFigureLeft(GameParams_t *params);
-void moveFigureRight(GameParams_t *params);
-void moveFigureDown(GameParams_t *params);
+
+void shift(GameParams_t *params);
 
 int **allocate2DArray(int nRows, int nCols);
-void generatePixel(int **figure);
 
 #endif
