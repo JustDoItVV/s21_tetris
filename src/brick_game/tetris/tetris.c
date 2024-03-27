@@ -1,13 +1,9 @@
 #include "tetris.h"
 
-// Rows - states, cols - user input
 funcPointer fsmTable[STATES_COUNT][SIGNALS_COUNT] = {
-  // Start
-  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL},
-  // Game
-  {NULL, NULL, removeParams, moveLeft, moveRight, NULL, moveDown, rotate, NULL},
-  // Gameover
-  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL},
+  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL}, // Start
+  {NULL, NULL, removeParams, moveLeft, moveRight, NULL, moveDown, rotate, NULL}, // Game
+  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL}, // Gameover
 };
 
 void userInput(UserAction_t action, bool hold) {
@@ -15,24 +11,19 @@ void userInput(UserAction_t action, bool hold) {
   GameParams_t *params = updateParams(NULL);
   GameState_t state = params->state;
   funcPointer func = fsmTable[state][action];
-
   if (func) func(params);
 }
 
 GameInfo_t updateCurrentState() {
   GameParams_t *params = updateParams(NULL);
-  
   shift(params);
-
   return *params->data;
 }
 
 GameParams_t *updateParams(GameParams_t *params) {
   static GameParams_t *data;
-
   if (params != NULL)
     data = params;
-  
   return data;
 }
 
@@ -128,11 +119,7 @@ void spawnNextFigure(GameParams_t *params) {
   params->figure->x = x;
   params->figure->y = y;
   params->figure->rotation = 0;
-  
-  for (int i = 1; i < 8; i += 2) {
-    params->data->field[figures[type][i - 1] + y][figures[type][i] + x] = 1;
-  }
-
+  addFigure(params);
   params->figure->typeNext = generateRandomFigure(params->data->next);
 }
 
@@ -194,6 +181,38 @@ void shift(GameParams_t *params) {
 }
 
 void attach(GameParams_t *params) {
+  int rows = 0;
+  for (int row = FIELD_HEIGHT - 4; row > 2; row--) {
+    int rowBlocks = 0;
+
+    for (int col = 3; col < FIELD_WIDTH - 3; col++)
+      if (params->data->field[row][col])
+        rowBlocks++;
+
+    if (rowBlocks == FIELD_WIDTH - 6) {
+      rows++;
+      for (int i = row; i > 1; i--)
+        for (int col = 3; col < FIELD_WIDTH - 3; col++)
+          params->data->field[i][col] = params->data->field[i - 1][col];
+    }
+  }
+
+  if (rows == 1)
+    params->data->score += 100;
+  else if (rows == 2)
+    params->data->score += 300;
+  else if (rows == 3)
+    params->data->score += 700;
+  else if (rows >= 4)
+    params->data->score += 1500;
+  
+  params->data->level = params->data->score / 600 + 1;
+  if (params->data->level > 10)
+    params->data->level = 10;
+  params->data->speed = params->data->score / 600 + 1;
+  if (params->data->speed > 10)
+    params->data->speed = 10;
+
   spawnNextFigure(params);
   clearFigure(params);
   

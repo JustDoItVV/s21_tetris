@@ -14,7 +14,7 @@
 #define INFO_SIZE_X 10
 #define INFO_SIZE_Y 20
 #define GUI_SCALE 1
-#define SPEED_RATE 0.5
+#define SPEED_RATE 0.1
 
 void initGui();
 void destroyGui();
