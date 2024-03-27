@@ -18,10 +18,7 @@
 
 typedef enum {
     START = 0,
-    SPAWN,
-    MOVING,
-    SHIFTING,
-    ATTACHING,
+    GAME,
     GAMEOVER,
 } GameState_t;
 
@@ -69,12 +66,16 @@ typedef void (*funcPointer)(GameParams_t *params);
 GameParams_t *updateParams(GameParams_t *params);
 void initializeParams(GameParams_t *params);
 void removeParams(GameParams_t *params);
+void resetField(GameParams_t *params);
 
 void startGame(GameParams_t *params);
 int generateRandomFigure(int **next);
 void spawnNextFigure(GameParams_t *params);
-
+void moveLeft(GameParams_t *params);
+void moveRight(GameParams_t *params);
+void moveDown(GameParams_t *params);
 void shift(GameParams_t *params);
+void attach(GameParams_t *params);
 
 int **allocate2DArray(int nRows, int nCols);
 

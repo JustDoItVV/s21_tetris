@@ -40,8 +40,8 @@ void gameLoop() {
       userInput(action, hold);
     }
 
-    if (params.state != GAMEOVER && counter >= 1.50 - params.data->speed * SPEED_RATE) {
-      if (params.state != START) {
+    if (counter >= 1.50 - params.data->speed * SPEED_RATE) {
+      if (params.state == GAME) {
         updateCurrentState();
       }
       counter = 0.;
@@ -51,13 +51,12 @@ void gameLoop() {
 
     if (params.state == START)
       drawStartScreen(params.data);
-    else if (params.state != GAMEOVER) {
+    else if (params.state == GAME) {
       drawGui();
       drawInfo(params.data);
       drawField(params.data->field);
-    }
-    printw("\nstate: %d\n", params.state);
-    printw("\ncounter: %f\n", counter);
+    } else if (params.state == GAMEOVER)
+      drawGameoverScreen(params.data);
   }
 }
 
@@ -133,15 +132,17 @@ void drawStartScreen(GameInfo_t *data) {
 
   mvprintw(1 + FIELD_SIZE_Y / 2, 1, "Press ENTER to start");
 
-  mvaddch(1 + FIELD_SIZE_Y - 3, 1 + FIELD_SIZE_X, ACS_CKBOARD);
-  mvaddch(1 + FIELD_SIZE_Y - 3, 1 + FIELD_SIZE_X + 1, ACS_CKBOARD);
-  mvaddch(1 + FIELD_SIZE_Y - 3 + 1, 1 + FIELD_SIZE_X, ACS_CKBOARD);
-  mvaddch(1 + FIELD_SIZE_Y - 3 + 1, 1 + FIELD_SIZE_X + 1, ACS_CKBOARD);
-  mvaddch(1 + FIELD_SIZE_Y - 3 + 1, 1 + FIELD_SIZE_X + 1, ACS_CKBOARD);
-  mvaddch(1 + FIELD_SIZE_Y - 3 + 1, 1 + FIELD_SIZE_X + 1 + 1, ACS_CKBOARD);
-  mvaddch(1 + FIELD_SIZE_Y - 3 + 1, 1 + FIELD_SIZE_X + 1 + 1 + 1, ACS_CKBOARD);
-  mvaddch(1 + FIELD_SIZE_Y - 3 + 2, 1 + FIELD_SIZE_X, ACS_CKBOARD);
-  mvaddch(1 + FIELD_SIZE_Y - 3 + 2, 1 + FIELD_SIZE_X + 1, ACS_CKBOARD);
+  move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);
+}
 
-  move(1 + FIELD_SIZE_Y, 1 + FIELD_SIZE_X * 2 + 1 + INFO_SIZE_X * 2 + 1);
+void drawGameoverScreen(GameInfo_t *data) {
+  drawGui();
+  drawInfo(data);
+  drawField(data->field);
+
+  mvprintw(FIELD_SIZE_Y / 2, 7, "GAMEOVER");
+  mvprintw(FIELD_SIZE_Y / 2 + 1, 5, "Press  ENTER");
+  mvprintw(FIELD_SIZE_Y / 2 + 2, 4, "to start again");
+
+  move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);
 }
