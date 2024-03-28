@@ -138,8 +138,8 @@ void drawInfo(GameInfo_t *data) {
     for (int col = 0; col < FIGURE_WIDTH; col++) {
       if (data->next[row][col]) {
         attron(COLOR_PAIR(data->next[row][col]));
-        mvaddch(12 + row, FIELD_SIZE_X * 2 + 3 + col * 2, ACS_CKBOARD);
-        mvaddch(12 + row, FIELD_SIZE_X * 2 + 3 + col * 2 + 1, ACS_CKBOARD);
+        mvaddch(12 + row, FIELD_SIZE_X * 2 + 4 * 2 + col * 2, ACS_CKBOARD);
+        mvaddch(12 + row, FIELD_SIZE_X * 2 + 4 * 2 + col * 2 + 1, ACS_CKBOARD);
         attroff(COLOR_PAIR(data->next[row][col]));
       }
     }

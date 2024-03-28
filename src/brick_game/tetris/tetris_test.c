@@ -1,8 +1,10 @@
 #include "../../tests/tetris_cli_test.h"
 
 // userInput
+
+
 // updateCurrentState
-START_TEST(tc_ok_30) {
+START_TEST(tc_ok_1) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -25,7 +27,7 @@ START_TEST(tc_ok_30) {
 END_TEST
 
 // updateParams
-START_TEST(tc_ok_29) {
+START_TEST(tc_ok_2) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -42,7 +44,7 @@ START_TEST(tc_ok_29) {
 END_TEST
 
 // initializeParams
-START_TEST(tc_ok_1) {
+START_TEST(tc_ok_3) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -52,7 +54,6 @@ START_TEST(tc_ok_1) {
     initializeParams(&params);
 
     ck_assert_int_eq(params.data->score, 0);
-    ck_assert_int_eq(params.data->high_score, 0);
     ck_assert_int_eq(params.data->level, 1);
     ck_assert_int_eq(params.data->speed, 1);
     ck_assert_int_eq(params.data->pause, 0);
@@ -64,7 +65,7 @@ START_TEST(tc_ok_1) {
 END_TEST
 
 // removeParams
-START_TEST(tc_ok_2) {
+START_TEST(tc_ok_4) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -81,7 +82,7 @@ START_TEST(tc_ok_2) {
 }
 END_TEST
 
-START_TEST(tc_ok_3) {
+START_TEST(tc_ok_5) {
     GameParams_t params;
     GameInfo_t data;
     params.data = &data;
@@ -98,7 +99,7 @@ START_TEST(tc_ok_3) {
 END_TEST
 
 // resetField
-START_TEST(tc_ok_4) {
+START_TEST(tc_ok_6) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -117,7 +118,7 @@ START_TEST(tc_ok_4) {
 END_TEST
 
 // startGame
-START_TEST(tc_ok_5) {
+START_TEST(tc_ok_7) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -139,7 +140,7 @@ START_TEST(tc_ok_5) {
 END_TEST
 
 // generateRandomFigure
-START_TEST(tc_ok_27) {
+START_TEST(tc_ok_8) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -155,7 +156,7 @@ START_TEST(tc_ok_27) {
 END_TEST
 
 // spawnNextFigure
-START_TEST(tc_ok_28) {
+START_TEST(tc_ok_9) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -174,7 +175,7 @@ START_TEST(tc_ok_28) {
 END_TEST
 
 // moveLeft
-START_TEST(tc_ok_11) {
+START_TEST(tc_ok_10) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -190,6 +191,26 @@ START_TEST(tc_ok_11) {
     moveLeft(&params);
     
     ck_assert_int_ne(params.figure->x, previousX);
+}
+END_TEST
+
+START_TEST(tc_ok_11) {
+    GameParams_t params;
+    GameInfo_t data;
+    Figure_t figure;
+    params.data = &data;
+    params.figure = &figure;
+
+    initializeParams(&params);
+    params.figure->y = FIELD_HEIGHT / 2;
+    params.figure->x = FIELD_WIDTH / 2;
+    int previousX = params.figure->x;
+    params.figure->type = 0; // I figure
+    params.figure->rotation = 0;
+    params.data->pause = 1;
+    moveLeft(&params);
+    
+    ck_assert_int_eq(params.figure->x, previousX);
 }
 END_TEST
 
@@ -241,6 +262,26 @@ START_TEST(tc_ok_14) {
 
     initializeParams(&params);
     params.figure->y = FIELD_HEIGHT / 2;
+    params.figure->x = FIELD_WIDTH / 2;
+    int previousX = params.figure->x;
+    params.figure->type = 0; // I figure
+    params.figure->rotation = 0;
+    params.data->pause = 1;
+    moveRight(&params);
+    
+    ck_assert_int_eq(params.figure->x, previousX);
+}
+END_TEST
+
+START_TEST(tc_ok_15) {
+    GameParams_t params;
+    GameInfo_t data;
+    Figure_t figure;
+    params.data = &data;
+    params.figure = &figure;
+
+    initializeParams(&params);
+    params.figure->y = FIELD_HEIGHT / 2;
     params.figure->x = FIELD_WIDTH - 6;
     int previousX = params.figure->x;
     params.figure->type = 0; // I figure
@@ -252,7 +293,7 @@ START_TEST(tc_ok_14) {
 END_TEST
 
 // rotate
-START_TEST(tc_ok_17) {
+START_TEST(tc_ok_16) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -268,6 +309,26 @@ START_TEST(tc_ok_17) {
     rotate(&params);
     
     ck_assert_int_ne(params.figure->rotation, previousRotation);
+}
+END_TEST
+
+START_TEST(tc_ok_17) {
+    GameParams_t params;
+    GameInfo_t data;
+    Figure_t figure;
+    params.data = &data;
+    params.figure = &figure;
+
+    initializeParams(&params);
+    params.figure->y = FIELD_HEIGHT / 2;
+    params.figure->x = FIELD_WIDTH / 2;
+    params.figure->type = 0; // I figure
+    params.figure->rotation = 0;
+    int previousRotation = params.figure->rotation;
+    params.data->pause = 1;
+    rotate(&params);
+    
+    ck_assert_int_eq(params.figure->rotation, previousRotation);
 }
 END_TEST
 
@@ -291,7 +352,7 @@ START_TEST(tc_ok_18) {
 END_TEST
 
 // moveDown
-START_TEST(tc_ok_15) {
+START_TEST(tc_ok_19) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -319,7 +380,31 @@ START_TEST(tc_ok_15) {
 }
 END_TEST
 
-START_TEST(tc_ok_16) {
+START_TEST(tc_ok_20) {
+    GameParams_t params;
+    GameInfo_t data;
+    Figure_t figure;
+    params.data = &data;
+    params.figure = &figure;
+
+    initializeParams(&params);
+    params.figure->y = FIELD_HEIGHT / 2;
+    params.figure->x = FIELD_WIDTH / 2;
+    params.figure->type = 0; // I figure
+    params.figure->rotation = 0;
+    params.data->pause = 1;
+    moveDown(&params);
+
+    bool isFieldEqual = true;
+    isFieldEqual = params.data->field[FIELD_HEIGHT / 2][FIELD_HEIGHT / 2 - 1] == 1;
+    isFieldEqual = params.data->field[FIELD_HEIGHT / 2][FIELD_HEIGHT / 2] == 1;
+    isFieldEqual = params.data->field[FIELD_HEIGHT / 2][FIELD_HEIGHT / 2 + 1] == 1;
+    isFieldEqual = params.data->field[FIELD_HEIGHT / 2][FIELD_HEIGHT / 2 + 2] == 1;
+    ck_assert_int_eq(isFieldEqual, true);
+}
+END_TEST
+
+START_TEST(tc_ok_21) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -348,7 +433,7 @@ START_TEST(tc_ok_16) {
 END_TEST
 
 // shift
-START_TEST(tc_ok_25) {
+START_TEST(tc_ok_22) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -367,7 +452,7 @@ START_TEST(tc_ok_25) {
 }
 END_TEST
 
-START_TEST(tc_ok_26) {
+START_TEST(tc_ok_23) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -396,7 +481,7 @@ START_TEST(tc_ok_26) {
 END_TEST
 
 // attach
-START_TEST(tc_ok_19) {
+START_TEST(tc_ok_24) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -412,7 +497,7 @@ START_TEST(tc_ok_19) {
 }
 END_TEST
 
-START_TEST(tc_ok_20) {
+START_TEST(tc_ok_25) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -430,7 +515,7 @@ START_TEST(tc_ok_20) {
 }
 END_TEST
 
-START_TEST(tc_ok_21) {
+START_TEST(tc_ok_26) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -449,7 +534,7 @@ START_TEST(tc_ok_21) {
 }
 END_TEST
 
-START_TEST(tc_ok_22) {
+START_TEST(tc_ok_27) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -469,7 +554,7 @@ START_TEST(tc_ok_22) {
 }
 END_TEST
 
-START_TEST(tc_ok_23) {
+START_TEST(tc_ok_28) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -491,7 +576,7 @@ START_TEST(tc_ok_23) {
 }
 END_TEST
 
-START_TEST(tc_ok_24) {
+START_TEST(tc_ok_29) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -506,8 +591,23 @@ START_TEST(tc_ok_24) {
 }
 END_TEST
 
+START_TEST(tc_ok_30) {
+    GameParams_t params;
+    GameInfo_t data;
+    Figure_t figure;
+    params.data = &data;
+    params.figure = &figure;
+
+    initializeParams(&params);
+    params.data->score = params.data->high_score + 1;
+    attach(&params);
+    
+    ck_assert_int_eq(params.data->score, params.data->high_score);
+}
+END_TEST
+
 // addFigure
-START_TEST(tc_ok_6) {
+START_TEST(tc_ok_31) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -531,7 +631,7 @@ START_TEST(tc_ok_6) {
 END_TEST
 
 // isFigureNotCollide
-START_TEST(tc_ok_7) {
+START_TEST(tc_ok_32) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -549,7 +649,7 @@ START_TEST(tc_ok_7) {
 }
 END_TEST
 
-START_TEST(tc_ok_8) {
+START_TEST(tc_ok_33) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -568,7 +668,7 @@ START_TEST(tc_ok_8) {
 END_TEST
 
 // clearFigure
-START_TEST(tc_ok_9) {
+START_TEST(tc_ok_34) {
     GameParams_t params;
     GameInfo_t data;
     Figure_t figure;
@@ -592,7 +692,7 @@ START_TEST(tc_ok_9) {
 END_TEST
 
 // allocate2DArray
-START_TEST(tc_ok_10) {
+START_TEST(tc_ok_35) {
     GameParams_t params;
     GameInfo_t data;
     data.field = NULL;
@@ -606,10 +706,25 @@ START_TEST(tc_ok_10) {
 }
 END_TEST
 
+// Pause
+START_TEST(tc_ok_36) {
+    GameParams_t params;
+    GameInfo_t data;
+    Figure_t figure;
+    params.data = &data;
+    params.figure = &figure;
+
+    initializeParams(&params);
+    pauseGame(&params);
+    
+    ck_assert_int_eq(params.data->pause, 1);
+    removeParams(&params);
+}
+END_TEST
 
 Suite *tetris_suite() {
     Suite *s = suite_create("tetris");
-    TCase *tcases_ok, *tcases_error;
+    TCase *tcases_ok;
 
     tcases_ok = tcase_create("tetris_ok");
     tcase_add_test(tcases_ok, tc_ok_1);
@@ -642,11 +757,14 @@ Suite *tetris_suite() {
     tcase_add_test(tcases_ok, tc_ok_28);
     tcase_add_test(tcases_ok, tc_ok_29);
     tcase_add_test(tcases_ok, tc_ok_30);
-
-    tcases_error = tcase_create("tetris_error");
+    tcase_add_test(tcases_ok, tc_ok_31);
+    tcase_add_test(tcases_ok, tc_ok_32);
+    tcase_add_test(tcases_ok, tc_ok_33);
+    tcase_add_test(tcases_ok, tc_ok_34);
+    tcase_add_test(tcases_ok, tc_ok_35);
+    tcase_add_test(tcases_ok, tc_ok_36);
 
     suite_add_tcase(s, tcases_ok);
-    suite_add_tcase(s, tcases_error);
 
     return s;
 }

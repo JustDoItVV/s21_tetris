@@ -58,7 +58,19 @@ void initializeParams(GameParams_t *params) {
   resetField(params);  
   params->data->next = allocate2DArray(FIGURE_HEIGHT, FIGURE_WIDTH);
   params->data->score = 0;
-  params->data->high_score = 0;
+
+  FILE *fp = fopen("./data", "r");
+  if (!fp) {
+    params->data->high_score = 0;
+    fp = fopen("./data", "w");
+    fprintf(fp, "0\n");
+  } else {
+    int highScore;
+    fscanf(fp, "%d\n", &highScore);
+    params->data->high_score = highScore;
+  }
+  fclose(fp);
+
   params->data->level = 1;
   params->data->speed = 1;
   params->data->pause = 0;
@@ -112,6 +124,11 @@ int generateRandomFigure(int **next) {
 
 void startGame(GameParams_t *params) {
   resetField(params);
+  FILE *fp = fopen("./data", "r");
+  int highScore;
+  fscanf(fp, "%d\n", &highScore);
+  params->data->high_score = highScore;
+  fclose(fp);
   params->data->score = 0;
   params->data->level = 1;
   params->data->speed = 1;
@@ -120,15 +137,12 @@ void startGame(GameParams_t *params) {
 }
 
 void spawnNextFigure(GameParams_t *params) {
-  int y = 2;
-  int x = FIELD_WIDTH / 2;
-  int type = params->figure->typeNext;
-  params->figure->type = type;
-  params->figure->x = x;
-  params->figure->y = y;
+  params->figure->type = params->figure->typeNext;
+  params->figure->x = FIELD_WIDTH / 2;
+  params->figure->y = 2;
   params->figure->rotation = 0;
-  addFigure(params);
   params->figure->typeNext = generateRandomFigure(params->data->next);
+  addFigure(params);
 }
 
 void addFigure(GameParams_t *params) {
@@ -217,6 +231,13 @@ void attach(GameParams_t *params) {
     params->data->score += 700;
   else if (rows >= 4)
     params->data->score += 1500;
+
+  if (params->data->score > params->data->high_score) {
+    params->data->high_score = params->data->score;
+    FILE *fp = fopen("./data", "w");
+    fprintf(fp, "%d\n", params->data->high_score);
+    fclose(fp);
+  }
   
   params->data->level = params->data->score / 600 + 1 <= 10 ? params->data->score / 600 + 1 : 10;
   params->data->speed = params->data->level;
@@ -230,6 +251,8 @@ void attach(GameParams_t *params) {
     params->figure->y--;
     params->state = GAMEOVER;
   }
+
+  addFigure(params);
 }
 
 void moveLeft(GameParams_t *params) {

@@ -19,7 +19,6 @@
 #define FIGURE_HEIGHT 2
 #define FIGURE_WIDTH 4
 #define PIXEL_EMPTY 0
-#define PIXEL_FIGURE 1
 
 #define STATES_COUNT 3
 #define SIGNALS_COUNT 8
