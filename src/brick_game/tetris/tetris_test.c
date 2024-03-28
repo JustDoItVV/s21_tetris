@@ -22,6 +22,7 @@ START_TEST(tc_ok_1) {
   ck_assert_int_eq(params.data->level, dataCheck.level);
   ck_assert_int_eq(params.data->pause, dataCheck.pause);
   ck_assert_int_eq(params.data->speed, dataCheck.speed);
+  removeParams(&params);
 }
 END_TEST
 
@@ -39,6 +40,7 @@ START_TEST(tc_ok_2) {
 
   ck_assert_ptr_eq(&params, paramsCheck1);
   ck_assert_ptr_eq(&params, paramsCheck2);
+  removeParams(&params);
 }
 END_TEST
 
@@ -60,6 +62,7 @@ START_TEST(tc_ok_3) {
   ck_assert_int_le(params.figure->typeNext, 6);
   ck_assert_int_eq(params.state, START);
   ck_assert_int_eq(params.isActive, true);
+  removeParams(&params);
 }
 END_TEST
 
@@ -113,6 +116,7 @@ START_TEST(tc_ok_6) {
   ck_assert_int_eq(params.data->speed, 1);
   ck_assert_int_eq(params.state, GAME);
   ck_assert_int_eq(params.isActive, true);
+  removeParams(&params);
 }
 END_TEST
 
@@ -135,6 +139,7 @@ START_TEST(tc_ok_7) {
       isFieldEqual = params.data->field[row][col] == checkValue;
     }
   ck_assert_int_eq(isFieldEqual, true);
+  removeParams(&params);
 }
 END_TEST
 
@@ -151,6 +156,7 @@ START_TEST(tc_ok_8) {
 
   ck_assert_int_ge(params.figure->typeNext, 0);
   ck_assert_int_le(params.figure->typeNext, 6);
+  removeParams(&params);
 }
 END_TEST
 
@@ -170,6 +176,7 @@ START_TEST(tc_ok_9) {
   ck_assert_int_eq(params.figure->y, 2);
   ck_assert_int_eq(params.figure->x, FIELD_WIDTH / 2);
   ck_assert_int_eq(params.figure->rotation, 0);
+  removeParams(&params);
 }
 END_TEST
 
@@ -190,6 +197,7 @@ START_TEST(tc_ok_10) {
   moveLeft(&params);
 
   ck_assert_int_ne(params.figure->x, previousX);
+  removeParams(&params);
 }
 END_TEST
 
@@ -210,6 +218,7 @@ START_TEST(tc_ok_11) {
   moveLeft(&params);
 
   ck_assert_int_eq(params.figure->x, previousX);
+  removeParams(&params);
 }
 END_TEST
 
@@ -229,6 +238,7 @@ START_TEST(tc_ok_12) {
   moveLeft(&params);
 
   ck_assert_int_eq(params.figure->x, previousX);
+  removeParams(&params);
 }
 END_TEST
 
@@ -249,6 +259,7 @@ START_TEST(tc_ok_13) {
   moveRight(&params);
 
   ck_assert_int_ne(params.figure->x, previousX);
+  removeParams(&params);
 }
 END_TEST
 
@@ -269,6 +280,7 @@ START_TEST(tc_ok_14) {
   moveRight(&params);
 
   ck_assert_int_eq(params.figure->x, previousX);
+  removeParams(&params);
 }
 END_TEST
 
@@ -288,6 +300,7 @@ START_TEST(tc_ok_15) {
   moveRight(&params);
 
   ck_assert_int_eq(params.figure->x, previousX);
+  removeParams(&params);
 }
 END_TEST
 
@@ -302,12 +315,13 @@ START_TEST(tc_ok_16) {
   initializeParams(&params);
   params.figure->y = FIELD_HEIGHT / 2;
   params.figure->x = FIELD_WIDTH / 2;
-  int previousRotation = params.figure->rotation;
-  params.figure->type = 0;  // I figure
   params.figure->rotation = 0;
+  params.figure->type = 0;  // I figure
+  int previousRotation = params.figure->rotation;
   rotate(&params);
 
   ck_assert_int_ne(params.figure->rotation, previousRotation);
+  removeParams(&params);
 }
 END_TEST
 
@@ -328,6 +342,7 @@ START_TEST(tc_ok_17) {
   rotate(&params);
 
   ck_assert_int_eq(params.figure->rotation, previousRotation);
+  removeParams(&params);
 }
 END_TEST
 
@@ -347,6 +362,7 @@ START_TEST(tc_ok_18) {
   rotate(&params);
 
   ck_assert_int_eq(params.figure->rotation, previousRotation);
+  removeParams(&params);
 }
 END_TEST
 
@@ -379,6 +395,7 @@ START_TEST(tc_ok_19) {
   isFieldEqual =
       params.data->field[FIELD_HEIGHT - 4][FIELD_HEIGHT / 2 + 2] == 1;
   ck_assert_int_eq(isFieldEqual, true);
+  removeParams(&params);
 }
 END_TEST
 
@@ -406,6 +423,7 @@ START_TEST(tc_ok_20) {
   isFieldEqual =
       params.data->field[FIELD_HEIGHT / 2][FIELD_HEIGHT / 2 + 2] == 1;
   ck_assert_int_eq(isFieldEqual, true);
+  removeParams(&params);
 }
 END_TEST
 
@@ -419,16 +437,16 @@ START_TEST(tc_ok_21) {
   initializeParams(&params);
   params.figure->y = FIELD_HEIGHT - 4;
   params.figure->x = FIELD_WIDTH / 2;
-  int previousY = params.figure->y;
   params.figure->type = 0;  // I figure
   params.figure->rotation = 0;
+  int previousY = params.figure->y;
   moveDown(&params);
 
   bool isFieldEqual = true;
-  isFieldEqual = params.data->field[params.figure->y][previousY] == 1;
-  isFieldEqual = params.data->field[params.figure->y][previousY] == 1;
-  isFieldEqual = params.data->field[params.figure->y][previousY] == 1;
-  isFieldEqual = params.data->field[params.figure->y][previousY] == 1;
+  isFieldEqual = params.data->field[previousY][params.figure->x] == 1;
+  isFieldEqual = params.data->field[previousY][params.figure->x] == 1;
+  isFieldEqual = params.data->field[previousY][params.figure->x] == 1;
+  isFieldEqual = params.data->field[previousY][params.figure->x] == 1;
   isFieldEqual =
       params.data->field[FIELD_HEIGHT - 4][FIELD_HEIGHT / 2 - 1] == 1;
   isFieldEqual = params.data->field[FIELD_HEIGHT - 4][FIELD_HEIGHT / 2] == 1;
@@ -437,6 +455,7 @@ START_TEST(tc_ok_21) {
   isFieldEqual =
       params.data->field[FIELD_HEIGHT - 4][FIELD_HEIGHT / 2 + 2] == 1;
   ck_assert_int_eq(isFieldEqual, true);
+  removeParams(&params);
 }
 END_TEST
 
@@ -457,6 +476,7 @@ START_TEST(tc_ok_22) {
   shift(&params);
 
   ck_assert_int_ne(params.figure->y, previousY);
+  removeParams(&params);
 }
 END_TEST
 
@@ -470,16 +490,16 @@ START_TEST(tc_ok_23) {
   initializeParams(&params);
   params.figure->y = FIELD_HEIGHT - 4;
   params.figure->x = FIELD_WIDTH / 2;
-  int previousY = params.figure->y;
   params.figure->type = 0;  // I figure
   params.figure->rotation = 0;
+  int previousY = params.figure->y;
   shift(&params);
 
   bool isFieldEqual = true;
-  isFieldEqual = params.data->field[params.figure->y][previousY] == 1;
-  isFieldEqual = params.data->field[params.figure->y][previousY] == 1;
-  isFieldEqual = params.data->field[params.figure->y][previousY] == 1;
-  isFieldEqual = params.data->field[params.figure->y][previousY] == 1;
+  isFieldEqual = params.data->field[previousY][params.figure->x] == 1;
+  isFieldEqual = params.data->field[previousY][params.figure->x] == 1;
+  isFieldEqual = params.data->field[previousY][params.figure->x] == 1;
+  isFieldEqual = params.data->field[previousY][params.figure->x] == 1;
   isFieldEqual =
       params.data->field[FIELD_HEIGHT - 4][FIELD_HEIGHT / 2 - 1] == 1;
   isFieldEqual = params.data->field[FIELD_HEIGHT - 4][FIELD_HEIGHT / 2] == 1;
@@ -488,6 +508,7 @@ START_TEST(tc_ok_23) {
   isFieldEqual =
       params.data->field[FIELD_HEIGHT - 4][FIELD_HEIGHT / 2 + 2] == 1;
   ck_assert_int_eq(isFieldEqual, true);
+  removeParams(&params);
 }
 END_TEST
 
@@ -505,6 +526,7 @@ START_TEST(tc_ok_24) {
   attach(&params);
 
   ck_assert_int_eq(params.data->score, 100);
+  removeParams(&params);
 }
 END_TEST
 
@@ -523,6 +545,7 @@ START_TEST(tc_ok_25) {
   attach(&params);
 
   ck_assert_int_eq(params.data->score, 300);
+  removeParams(&params);
 }
 END_TEST
 
@@ -542,6 +565,7 @@ START_TEST(tc_ok_26) {
   attach(&params);
 
   ck_assert_int_eq(params.data->score, 700);
+  removeParams(&params);
 }
 END_TEST
 
@@ -562,6 +586,7 @@ START_TEST(tc_ok_27) {
   attach(&params);
 
   ck_assert_int_eq(params.data->score, 1500);
+  removeParams(&params);
 }
 END_TEST
 
@@ -584,6 +609,7 @@ START_TEST(tc_ok_28) {
 
   ck_assert_int_eq(params.data->score, 7500);
   ck_assert_int_eq(params.data->level, 10);
+  removeParams(&params);
 }
 END_TEST
 
@@ -599,6 +625,7 @@ START_TEST(tc_ok_29) {
   attach(&params);
 
   ck_assert_int_eq(params.state, GAMEOVER);
+  removeParams(&params);
 }
 END_TEST
 
@@ -614,6 +641,7 @@ START_TEST(tc_ok_30) {
   attach(&params);
 
   ck_assert_int_eq(params.data->score, params.data->high_score);
+  removeParams(&params);
 }
 END_TEST
 
@@ -642,6 +670,7 @@ START_TEST(tc_ok_31) {
   isFieldEqual = params.data->field[params.figure->y][params.figure->x + 2] ==
                  params.figure->type + 1;
   ck_assert_int_eq(isFieldEqual, true);
+  removeParams(&params);
 }
 END_TEST
 
@@ -661,6 +690,7 @@ START_TEST(tc_ok_32) {
   bool isNotCollide = isFigureNotCollide(&params);
 
   ck_assert_int_eq(isNotCollide, true);
+  removeParams(&params);
 }
 END_TEST
 
@@ -679,6 +709,7 @@ START_TEST(tc_ok_33) {
   bool isNotCollide = isFigureNotCollide(&params);
 
   ck_assert_int_eq(isNotCollide, false);
+  removeParams(&params);
 }
 END_TEST
 
@@ -706,6 +737,7 @@ START_TEST(tc_ok_34) {
   isFieldEqual =
       params.data->field[params.figure->y][params.figure->x + 2] == 0;
   ck_assert_int_eq(isFieldEqual, true);
+  removeParams(&params);
 }
 END_TEST
 
