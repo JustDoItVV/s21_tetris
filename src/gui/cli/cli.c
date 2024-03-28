@@ -1,3 +1,8 @@
+/************************************************************
+ * @file cli.c
+ * @brief CLI GUI source
+ ************************************************************/
+
 #include "cli.h"
 
 void initGui() {
@@ -43,7 +48,7 @@ void gameLoop() {
 
   while (params.isActive) {
     if (counter >= 1.50 - params.data->speed * SPEED_RATE) {
-      if (params.state == GAME) {
+      if (params.state == GAME && !params.data->pause) {
         updateCurrentState();
       }
       counter = 0.;
@@ -59,7 +64,10 @@ void gameLoop() {
       drawField(params.data->field);
     } else if (params.state == GAMEOVER)
       drawGameoverScreen(params.data);
-    
+
+    if (params.data->pause)
+      mvprintw(1 + FIELD_SIZE_Y / 2, FIELD_SIZE_X - 1, "PAUSE");
+
     pressedKey = getch();
     action = getAction(pressedKey);
     if (action != Up) {
@@ -85,15 +93,17 @@ UserAction_t getAction(int pressedKey) {
     action = Down;
   else if (pressedKey == 'r')
     action = Action;
-  
+
   return action;
 }
 
 void drawGui() {
   clear();
-  
+
   mvhline(0, 0, ACS_HLINE, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 2);
-  mvhline(FIELD_SIZE_Y + 1, 0, ACS_HLINE, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 2);
+  mvhline(FIELD_SIZE_Y + 1, 0, ACS_HLINE,
+          FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 2);
+  mvhline(FIELD_SIZE_Y - 6, FIELD_SIZE_X * 2 + 2, ACS_HLINE, INFO_SIZE_X * 2);
   mvvline(1, 0, ACS_VLINE, FIELD_SIZE_Y);
   mvvline(1, FIELD_SIZE_X * 2 + 1, ACS_VLINE, FIELD_SIZE_Y);
   mvvline(1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 2, ACS_VLINE, FIELD_SIZE_Y);
@@ -101,7 +111,8 @@ void drawGui() {
   mvaddch(0, 0, ACS_ULCORNER);
   mvaddch(0, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 2, ACS_URCORNER);
   mvaddch(FIELD_SIZE_Y + 1, 0, ACS_LLCORNER);
-  mvaddch(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 2, ACS_LRCORNER);
+  mvaddch(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 2,
+          ACS_LRCORNER);
   mvaddch(0, FIELD_SIZE_X * 2 + 1, ACS_TTEE);
   mvaddch(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + 1, ACS_BTEE);
 
@@ -117,7 +128,7 @@ void drawField(int **field) {
         mvaddch(1 + row, 1 + col * 2 + 1, ACS_CKBOARD);
         attroff(COLOR_PAIR(field[row + 3][col + 3]));
       }
-  move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);      
+  move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);
 }
 
 void drawInfo(GameInfo_t *data) {
@@ -130,11 +141,18 @@ void drawInfo(GameInfo_t *data) {
     for (int col = 0; col < FIGURE_WIDTH; col++) {
       if (data->next[row][col]) {
         attron(COLOR_PAIR(data->next[row][col]));
-        mvaddch(12 + row, FIELD_SIZE_X * 2 + 3 + col * 2, ACS_CKBOARD);
-        mvaddch(12 + row, FIELD_SIZE_X * 2 + 3 + col * 2 + 1, ACS_CKBOARD);
+        mvaddch(11 + row, FIELD_SIZE_X * 2 + 6 * 2 + col * 2, ACS_CKBOARD);
+        mvaddch(11 + row, FIELD_SIZE_X * 2 + 6 * 2 + col * 2 + 1, ACS_CKBOARD);
         attroff(COLOR_PAIR(data->next[row][col]));
       }
     }
+
+  mvprintw(15, FIELD_SIZE_X * 2 + 3, "SPACE - Pause game");
+  mvaddwstr(16, FIELD_SIZE_X * 2 + 5, L"←   - Move left");
+  mvaddwstr(17, FIELD_SIZE_X * 2 + 5, L"→   - Move right");
+  mvaddwstr(18, FIELD_SIZE_X * 2 + 5, L"↓   - Move down");
+  mvaddwstr(19, FIELD_SIZE_X * 2 + 5, L"R   - Rotate");
+  mvaddwstr(20, FIELD_SIZE_X * 2 + 4, L"ESC  - Exit game");
   move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);
 }
 

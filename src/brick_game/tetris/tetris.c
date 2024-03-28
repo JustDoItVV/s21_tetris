@@ -1,19 +1,32 @@
+/************************************************************
+ * @file tetris.c
+ * @brief Game logic library source
+ ************************************************************/
+
 #include "tetris.h"
 
+/************************************************************
+ * @brief Finite state machine table
+ *
+ * Finite state machine table
+ ************************************************************/
 funcPointer fsmTable[STATES_COUNT][SIGNALS_COUNT] = {
-  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL}, // Start
-  {NULL, NULL, removeParams, moveLeft, moveRight, NULL, moveDown, rotate, NULL}, // Game
-  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL}, // Gameover
+    {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},  // Start
+    {NULL, pauseGame, removeParams, moveLeft, moveRight, NULL, moveDown,
+     rotate},                                                       // Game
+    {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL},  // Gameover
 };
 
-int figures[7][8] = {
-  {0, -1, 0, 0, 0, 1, 0, 2},
-  {-1, -1, 0, -1, 0, 0, 0, 1},
-  {0, -1, 0, 0, 0, 1, -1, 1},
-  {-1, 0, -1, 1, 0, 0, 0, 1},
-  {0, -1, 0, 0, -1, 0, -1, 1},
-  {0, -1, 0, 0, -1, 0, 0, 1},
-  {-1, -1, -1, 0, 0, 0, 0, 1},
+/************************************************************
+ * @brief Figures realtive coordinates
+ *
+ * Figures realtive coordinates
+ ************************************************************/
+int figures[FIGURES_COUNT][8] = {
+    {0, -1, 0, 0, 0, 1, 0, 2},   {-1, -1, 0, -1, 0, 0, 0, 1},
+    {0, -1, 0, 0, 0, 1, -1, 1},  {-1, 0, -1, 1, 0, 0, 0, 1},
+    {0, -1, 0, 0, -1, 0, -1, 1}, {0, -1, 0, 0, -1, 0, 0, 1},
+    {-1, -1, -1, 0, 0, 0, 0, 1},
 };
 
 void userInput(UserAction_t action, bool hold) {
@@ -32,19 +45,30 @@ GameInfo_t updateCurrentState() {
 
 GameParams_t *updateParams(GameParams_t *params) {
   static GameParams_t *data;
-  if (params != NULL)
-    data = params;
+  if (params != NULL) data = params;
   return data;
 }
 
 void initializeParams(GameParams_t *params) {
   params->data->field = allocate2DArray(FIELD_HEIGHT, FIELD_WIDTH);
-  resetField(params);  
+  resetField(params);
   params->data->next = allocate2DArray(FIGURE_HEIGHT, FIGURE_WIDTH);
   params->data->score = 0;
-  params->data->high_score = 0;
-  params->data->level = 1;
-  params->data->speed = 1;
+
+  FILE *fp = fopen(DATAFILE_PATH, "r");
+  if (!fp) {
+    params->data->high_score = 0;
+    fp = fopen(DATAFILE_PATH, "w");
+    fprintf(fp, "0\n");
+  } else {
+    int highScore;
+    fscanf(fp, "%d\n", &highScore);
+    params->data->high_score = highScore;
+  }
+  fclose(fp);
+
+  params->data->level = LEVEL_MIN;
+  params->data->speed = SPEED_MIN;
   params->data->pause = 0;
   params->figure->typeNext = generateRandomFigure(params->data->next);
   params->state = START;
@@ -54,7 +78,11 @@ void initializeParams(GameParams_t *params) {
 void resetField(GameParams_t *params) {
   for (int row = 0; row < FIELD_HEIGHT; row++)
     for (int col = 0; col < FIELD_WIDTH; col++)
-      params->data->field[row][col] = (row > 22 || col < 3 || col > 12) ? 1 : 0;
+      params->data->field[row][col] =
+          (row > FIELD_HEIGHT - BORDER_SIZE - 1 || col < BORDER_SIZE ||
+           col > FIELD_WIDTH - BORDER_SIZE - 1)
+              ? 1
+              : 0;
 }
 
 void removeParams(GameParams_t *params) {
@@ -75,27 +103,31 @@ void removeParams(GameParams_t *params) {
     free(params->data->next);
     params->data->next = NULL;
   }
-  
+
   params->state = GAMEOVER;
   params->isActive = false;
 }
 
 int generateRandomFigure(int **next) {
   srand(time(NULL));
-  int type = rand() % 7;
+  int type = rand() % FIGURES_COUNT;
 
   for (int row = 0; row < FIGURE_HEIGHT; row++)
-    for (int col = 0; col < FIGURE_WIDTH; col++)
-      next[row][col] = 0;
-  
+    for (int col = 0; col < FIGURE_WIDTH; col++) next[row][col] = 0;
+
   for (int i = 1; i < 8; i += 2)
     next[figures[type][i - 1] + 1][figures[type][i] + 1] = type + 1;
-  
+
   return type;
 }
 
 void startGame(GameParams_t *params) {
   resetField(params);
+  FILE *fp = fopen(DATAFILE_PATH, "r");
+  int highScore;
+  fscanf(fp, "%d\n", &highScore);
+  params->data->high_score = highScore;
+  fclose(fp);
   params->data->score = 0;
   params->data->level = 1;
   params->data->speed = 1;
@@ -104,15 +136,12 @@ void startGame(GameParams_t *params) {
 }
 
 void spawnNextFigure(GameParams_t *params) {
-  int y = 2;
-  int x = FIELD_WIDTH / 2;
-  int type = params->figure->typeNext;
-  params->figure->type = type;
-  params->figure->x = x;
-  params->figure->y = y;
+  params->figure->type = params->figure->typeNext;
+  params->figure->x = FIELD_WIDTH / 2;
+  params->figure->y = 2;
   params->figure->rotation = 0;
-  addFigure(params);
   params->figure->typeNext = generateRandomFigure(params->data->next);
+  addFigure(params);
 }
 
 void addFigure(GameParams_t *params) {
@@ -122,8 +151,10 @@ void addFigure(GameParams_t *params) {
   int rotation = params->figure->rotation;
 
   for (int i = 1; i < 8; i += 2) {
-    int xx = (int)round(figures[type][i] * cos(M_PI_2 * rotation) + figures[type][i - 1] * sin(M_PI_2 * rotation));
-    int yy = (int)round(-figures[type][i] * sin(M_PI_2 * rotation) + figures[type][i - 1] * cos(M_PI_2 * rotation));
+    int xx = (int)round(figures[type][i] * cos(M_PI_2 * rotation) +
+                        figures[type][i - 1] * sin(M_PI_2 * rotation));
+    int yy = (int)round(-figures[type][i] * sin(M_PI_2 * rotation) +
+                        figures[type][i - 1] * cos(M_PI_2 * rotation));
     params->data->field[yy + y][xx + x] = type + 1;
   }
 }
@@ -136,10 +167,11 @@ bool isFigureNotCollide(GameParams_t *params) {
 
   bool isNotCollide = true;
   for (int i = 1; i < 8 && isNotCollide; i += 2) {
-    int xx = (int)round(figures[type][i] * cos(M_PI_2 * rotation) + figures[type][i - 1] * sin(M_PI_2 * rotation));
-    int yy = (int)round(-figures[type][i] * sin(M_PI_2 * rotation) + figures[type][i - 1] * cos(M_PI_2 * rotation));
-    if (params->data->field[yy + y][xx + x])
-      isNotCollide = false;
+    int xx = (int)round(figures[type][i] * cos(M_PI_2 * rotation) +
+                        figures[type][i - 1] * sin(M_PI_2 * rotation));
+    int yy = (int)round(-figures[type][i] * sin(M_PI_2 * rotation) +
+                        figures[type][i - 1] * cos(M_PI_2 * rotation));
+    if (params->data->field[yy + y][xx + x]) isNotCollide = false;
   }
 
   return isNotCollide;
@@ -152,8 +184,10 @@ void clearFigure(GameParams_t *params) {
   int rotation = params->figure->rotation;
 
   for (int i = 1; i < 8; i += 2) {
-    int xx = (int)round(figures[type][i] * cos(M_PI_2 * rotation) + figures[type][i - 1] * sin(M_PI_2 * rotation));
-    int yy = (int)round(-figures[type][i] * sin(M_PI_2 * rotation) + figures[type][i - 1] * cos(M_PI_2 * rotation));
+    int xx = (int)round(figures[type][i] * cos(M_PI_2 * rotation) +
+                        figures[type][i - 1] * sin(M_PI_2 * rotation));
+    int yy = (int)round(-figures[type][i] * sin(M_PI_2 * rotation) +
+                        figures[type][i - 1] * cos(M_PI_2 * rotation));
     params->data->field[yy + y][xx + x] = 0;
   }
 }
@@ -162,31 +196,28 @@ void shift(GameParams_t *params) {
   clearFigure(params);
   params->figure->y++;
   bool canShift = isFigureNotCollide(params);
-  
-  if (!canShift)
-    params->figure->y--;
-  
+
+  if (!canShift) params->figure->y--;
+
   addFigure(params);
 
-  if (!canShift)
-    attach(params);
+  if (!canShift) attach(params);
 }
 
 void attach(GameParams_t *params) {
   int rows = 0;
-  for (int row = FIELD_HEIGHT - 4; row > 2; row--) {
+  for (int row = FIELD_HEIGHT - BORDER_SIZE - 1; row > 2; row--) {
     int rowBlocks;
     bool cycle = true;
     while (cycle) {
       rowBlocks = 0;
       for (int col = 3; col < FIELD_WIDTH - 3; col++)
-        if (params->data->field[row][col])
-          rowBlocks++;
+        if (params->data->field[row][col]) rowBlocks++;
 
       if (rowBlocks == FIELD_WIDTH - 6) {
         rows++;
         for (int i = row; i > 1; i--)
-          for (int col = 3; col < FIELD_WIDTH - 3; col++)
+          for (int col = BORDER_SIZE; col < FIELD_WIDTH - BORDER_SIZE; col++)
             params->data->field[i][col] = params->data->field[i - 1][col];
       } else
         cycle = false;
@@ -194,74 +225,98 @@ void attach(GameParams_t *params) {
   }
 
   if (rows == 1)
-    params->data->score += 100;
+    params->data->score += SCORE_ROWS_1;
   else if (rows == 2)
-    params->data->score += 300;
+    params->data->score += SCORE_ROWS_2;
   else if (rows == 3)
-    params->data->score += 700;
+    params->data->score += SCORE_ROWS_3;
   else if (rows >= 4)
-    params->data->score += 1500;
-  
-  params->data->level = params->data->score / 600 + 1 <= 10 ? params->data->score / 600 + 1 : 10;
+    params->data->score += SCORE_ROWS_4;
+
+  if (params->data->score > params->data->high_score) {
+    params->data->high_score = params->data->score;
+    FILE *fp = fopen(DATAFILE_PATH, "w");
+    fprintf(fp, "%d\n", params->data->high_score);
+    fclose(fp);
+  }
+
+  params->data->level = params->data->score / LEVEL_TRESHOLD + 1 <= LEVEL_MAX
+                            ? params->data->score / LEVEL_TRESHOLD + 1
+                            : LEVEL_MAX;
   params->data->speed = params->data->level;
 
   spawnNextFigure(params);
   clearFigure(params);
   params->figure->y++;
   bool canShift = isFigureNotCollide(params);
-  
+
   if (!canShift) {
     params->figure->y--;
     params->state = GAMEOVER;
   }
+
+  addFigure(params);
 }
 
 void moveLeft(GameParams_t *params) {
-  clearFigure(params);
-  params->figure->x--;
-  bool canMove = isFigureNotCollide(params);  
-  
-  if (!canMove)
-    params->figure->x++;
-  
-  addFigure(params);
+  if (!params->data->pause) {
+    clearFigure(params);
+    params->figure->x--;
+    bool canMove = isFigureNotCollide(params);
+
+    if (!canMove) params->figure->x++;
+
+    addFigure(params);
+  }
 }
 
 void moveRight(GameParams_t *params) {
-  clearFigure(params);
-  params->figure->x++;
-  bool canMove = isFigureNotCollide(params);  
-  
-  if (!canMove)
-    params->figure->x--;
-  
-  addFigure(params);
+  if (!params->data->pause) {
+    clearFigure(params);
+    params->figure->x++;
+    bool canMove = isFigureNotCollide(params);
+
+    if (!canMove) params->figure->x--;
+
+    addFigure(params);
+  }
 }
 
 void moveDown(GameParams_t *params) {
-  clearFigure(params);
-  bool canMove = true;
-  while (canMove) {
-    params->figure->y++;
-    canMove = isFigureNotCollide(params);
-    
-    if (!canMove)
-      params->figure->y--;
+  if (!params->data->pause) {
+    clearFigure(params);
+    bool canMove = true;
+    while (canMove) {
+      params->figure->y++;
+      canMove = isFigureNotCollide(params);
+
+      if (!canMove) params->figure->y--;
+    }
+
+    addFigure(params);
+    attach(params);
   }
-  
-  addFigure(params);
-  attach(params);
 }
 
 void rotate(GameParams_t *params) {
-  clearFigure(params);
-  params->figure->rotation = params->figure->rotation + 1 <= 3 ? params->figure->rotation + 1 : 0;
-  bool canRotate = isFigureNotCollide(params);
-  
-  if (!canRotate)
-    params->figure->rotation = params->figure->rotation - 1 >= 0 ? params->figure->rotation - 1 : 3;
-  
-  addFigure(params);
+  if (!params->data->pause) {
+    clearFigure(params);
+    params->figure->rotation = params->figure->rotation + 1 <= ROTATION_MAX
+                                   ? params->figure->rotation + 1
+                                   : ROTATION_MIN;
+    bool canRotate = isFigureNotCollide(params);
+
+    if (!canRotate)
+      params->figure->rotation = params->figure->rotation - 1 >= ROTATION_MIN
+                                     ? params->figure->rotation - 1
+                                     : ROTATION_MAX;
+
+    addFigure(params);
+  }
+}
+
+void pauseGame(GameParams_t *params) {
+  params->data->pause = !params->data->pause;
 }
 
 int **allocate2DArray(int nRows, int nCols) {

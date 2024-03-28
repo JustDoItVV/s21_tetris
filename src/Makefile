@@ -1,71 +1,78 @@
 CC := gcc
 CFLAGS := -I./brick_game/tetris -I./gui/cli -Wall -Wextra -Werror -std=c11 -Wpedantic
 LDFLAGS := -L./brick_game/tetris -ltetris_game -lncurses
-LIB_FLAGS := $(shell pkg-config check ncurses --static --cflags --libs)
+LIB_FLAGS := $(shell pkg-config check ncursesw --static --cflags --libs)
 GCOV_FLAGS := -fprofile-arcs -ftest-coverage
 
 OS := $(shell uname -s)
 
 PROJECT := tetris_cli
 GUI := gui/cli/cli.c
+BUILD_DIR := build
+DOCS_DIR := docs
+TESTS_DIR := tests
+REPORT_DIR := report
+DIST_DIR := dist
 
-all : 
+all : install
 
 
-install : tetris.a
-	$(CC) $(CFLAGS) tetris_cli.c $(GUI) tetris.a -o tetris_cli $(LIB_FLAGS)
+install : tetris.a | build_dir
+	doxygen
+	$(CC) $(CFLAGS) $(PROJECT).c $(GUI) $(BUILD_DIR)/tetris.a -o $(BUILD_DIR)/$(PROJECT) $(LIB_FLAGS)
 
-install-sanitised : tetris.a
-	$(CC) $(CFLAGS) tetris_cli.c $(GUI) tetris.a -o tetris_cli $(LIB_FLAGS) -fsanitize=address
+install-sanitized : tetris.a
+	$(CC) $(CFLAGS) $(PROJECT).c $(GUI) $(BUILD_DIR)/tetris.a -o $(BUILD_DIR)/$(PROJECT) $(LIB_FLAGS) -fsanitize=address
+
+tetris.a : build_dir
+	$(CC) $(CFLAGS) -c brick_game/tetris/tetris.c -o $(BUILD_DIR)/tetris.o $(LIB_FLAGS)
+	ar rc $(BUILD_DIR)/tetris.a $(BUILD_DIR)/tetris.o
+	ranlib $(BUILD_DIR)/tetris.a
+	rm -rf $(BUILD_DIR)/tetris.o
 
 uninstall :
+	rm -rf $(DOCS_DIR) $(BUILD_DIR)
 
-
-rebuild : clean install
+rebuild : uninstall install
 
 
 clean :
-	rm -rf gui.a tetris.a tetris_cli
+	rm -rf $(DOCS_DIR) $(BUILD_DIR) $(DIST_DIR) $(REPORT_DIR) $(TESTS_DIR)/tetris_test
 
-dvi:  
-ifeq ($(OS), Darwin)
-#	open ./documentation.md
-else
-#	cat ./documentation.md
-endif
+dvi :
+	cd docs/latex && make all
 
-
-dist :
-
+dist : dist_dir
+	tar cf $(DIST_DIR)/tetris-1.0.tar $(BUILD_DIR) $(DOCS_DIR)
 
 test :
-	$(CC) $(CFLAGS) tests/tetris_cli_test.c brick_game/tetris/tetris_test.c tetris.a -o tetris_test $(LIB_FLAGS)
-	./tetris_test
+	$(CC) $(CFLAGS) $(TESTS_DIR)/tetris_cli_test.c brick_game/tetris/tetris_test.c $(BUILD_DIR)/tetris.a -o $(TESTS_DIR)/tetris_test $(LIB_FLAGS)
+	./$(TESTS_DIR)/tetris_test
 
 leaks :
-	leaks -atExit -- ./tetris_cli
+	leaks -atExit -- ./$(TESTS_DIR)/tetris_cli
 
 gcov_report :
-	$(CC) $(CFLAGS) $(GCOV_FLAGS) -c brick_game/tetris/tetris.c $(LIB_FLAGS)
-	ar rc tetris.a tetris.o
-	ranlib tetris.a
-	rm -rf *.o
-	$(CC) $(CFLAGS) tests/tetris_cli_test.c brick_game/tetris/tetris_test.c tetris.a -o tetris_test $(LIB_FLAGS) -lgcov
-	./tetris_test
-	rm -rf report
-	mkdir report
-	gcovr --html-details report/coverage.html
+	$(CC) $(CFLAGS) $(GCOV_FLAGS) -c brick_game/tetris/tetris.c -o $(BUILD_DIR)/tetris.o $(LIB_FLAGS)
+	ar rc $(BUILD_DIR)/tetris.a $(BUILD_DIR)/tetris.o
+	ranlib $(BUILD_DIR)/tetris.a
+	rm -rf $(BUILD_DIR)/tetris.o
+	$(CC) $(CFLAGS) $(TESTS_DIR)/tetris_cli_test.c brick_game/tetris/tetris_test.c $(BUILD_DIR)/tetris.a -o $(TESTS_DIR)/tetris_test $(LIB_FLAGS) -lgcov
+	./$(TESTS_DIR)/tetris_test
+	rm -rf $(REPORT_DIR)
+	mkdir $(REPORT_DIR)
+	gcovr --html-details $(REPORT_DIR)/coverage.html
 	rm -rf *.gcda *.gcno *.o
-	open report/coverage.html
-
-tetris.a :
-	$(CC) $(CFLAGS) -c brick_game/tetris/tetris.c $(LIB_FLAGS)
-	ar rc tetris.a tetris.o
-	ranlib tetris.a
-	rm -rf *.o
+	open $(REPORT_DIR)/coverage.html
 
 format :
-	clang-format --style=file:"../materials/linters/.clang-format" -i *.c *.h */*/*.c */*/*.h
+	clang-format --style=file:"../materials/linters/.clang-format" -i *.c $(TESTS_DIR)/*.c $(TESTS_DIR)/*.h */*/*.c */*/*.h
 
 check :
-	clang-format --style=file:"../materials/linters/.clang-format" -n *.c *.h */*/*.c */*/*.h
+	clang-format --style=file:"../materials/linters/.clang-format" -n *.c */*.c */*.h */*/*.c */*/*.h
+
+build_dir :
+	mkdir -p $(BUILD_DIR)
+
+dist_dir :
+	mkdir -p $(DIST_DIR)
