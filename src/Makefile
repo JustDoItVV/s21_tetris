@@ -71,6 +71,9 @@ format :
 check :
 	clang-format --style=file:"../materials/linters/.clang-format" -n *.c */*.c */*.h */*/*.c */*/*.h
 
+valgrind-test :
+	CK_FORK=no valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all -s --track-origins=yes $(TESTS_DIR)/tetris_test
+
 build_dir :
 	mkdir -p $(BUILD_DIR)
 
