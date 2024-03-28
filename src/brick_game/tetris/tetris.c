@@ -6,6 +6,16 @@ funcPointer fsmTable[STATES_COUNT][SIGNALS_COUNT] = {
   {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL}, // Gameover
 };
 
+int figures[7][8] = {
+  {0, -1, 0, 0, 0, 1, 0, 2},
+  {-1, -1, 0, -1, 0, 0, 0, 1},
+  {0, -1, 0, 0, 0, 1, -1, 1},
+  {-1, 0, -1, 1, 0, 0, 0, 1},
+  {0, -1, 0, 0, -1, 0, -1, 1},
+  {0, -1, 0, 0, -1, 0, 0, 1},
+  {-1, -1, -1, 0, 0, 0, 0, 1},
+};
+
 void userInput(UserAction_t action, bool hold) {
   if (hold) hold = hold;
   GameParams_t *params = updateParams(NULL);
@@ -35,7 +45,7 @@ void initializeParams(GameParams_t *params) {
   params->data->high_score = 0;
   params->data->level = 1;
   params->data->speed = 1;
-  params->data->pause = 1;
+  params->data->pause = 0;
   params->figure->typeNext = generateRandomFigure(params->data->next);
   params->state = START;
   params->isActive = true;
@@ -70,24 +80,6 @@ void removeParams(GameParams_t *params) {
   params->isActive = false;
 }
 
-int **allocate2DArray(int nRows, int nCols) {
-  int **arr = (int **)calloc(nRows, sizeof(int *));
-  for (size_t rowIdx = 0; rowIdx < (size_t)nRows; rowIdx++) {
-    arr[rowIdx] = (int *)calloc(nCols, sizeof(int));
-  }
-  return arr;
-}
-
-int figures[7][8] = {
-  {0, -1, 0, 0, 0, 1, 0, 2},
-  {-1, -1, 0, -1, 0, 0, 0, 1},
-  {0, -1, 0, 0, 0, 1, -1, 1},
-  {-1, 0, -1, 1, 0, 0, 0, 1},
-  {0, -1, 0, 0, -1, 0, -1, 1},
-  {0, -1, 0, 0, -1, 0, 0, 1},
-  {-1, -1, -1, 0, 0, 0, 0, 1},
-};
-
 int generateRandomFigure(int **next) {
   srand(time(NULL));
   int type = rand() % 7;
@@ -105,8 +97,8 @@ int generateRandomFigure(int **next) {
 void startGame(GameParams_t *params) {
   resetField(params);
   params->data->score = 0;
-  params->data->speed = 1;
   params->data->level = 1;
+  params->data->speed = 1;
   params->state = GAME;
   spawnNextFigure(params);
 }
@@ -210,66 +202,51 @@ void attach(GameParams_t *params) {
   else if (rows >= 4)
     params->data->score += 1500;
   
-  params->data->level = params->data->score / 600 + 1;
-  if (params->data->level > 10)
-    params->data->level = 10;
-  params->data->speed = params->data->score / 600 + 1;
-  if (params->data->speed > 10)
-    params->data->speed = 10;
+  params->data->level = params->data->score / 600 + 1 <= 10 ? params->data->score / 600 + 1 : 10;
+  params->data->speed = params->data->level;
 
   spawnNextFigure(params);
   clearFigure(params);
-  
   params->figure->y++;
   bool canShift = isFigureNotCollide(params);
   
-  if (!canShift)
-    params->figure->y--;
-  
-  addFigure(params);
-
   if (!canShift) {
+    params->figure->y--;
     params->state = GAMEOVER;
   }
 }
 
 void moveLeft(GameParams_t *params) {
   clearFigure(params);
-  
   params->figure->x--;
   bool canMove = isFigureNotCollide(params);  
   
-  if (!canMove) {
+  if (!canMove)
     params->figure->x++;
-  }
   
   addFigure(params);
 }
 
 void moveRight(GameParams_t *params) {
   clearFigure(params);
-  
   params->figure->x++;
   bool canMove = isFigureNotCollide(params);  
   
-  if (!canMove) {
+  if (!canMove)
     params->figure->x--;
-  }
   
   addFigure(params);
 }
 
 void moveDown(GameParams_t *params) {
   clearFigure(params);
-  
   bool canMove = true;
   while (canMove) {
     params->figure->y++;
     canMove = isFigureNotCollide(params);
     
-    if (!canMove) {
+    if (!canMove)
       params->figure->y--;
-    }
   }
   
   addFigure(params);
@@ -278,17 +255,18 @@ void moveDown(GameParams_t *params) {
 
 void rotate(GameParams_t *params) {
   clearFigure(params);
-
-  params->figure->rotation++;
-  if (params->figure->rotation > 3)
-    params->figure->rotation = 0;
-
+  params->figure->rotation = params->figure->rotation + 1 <= 3 ? params->figure->rotation + 1 : 0;
   bool canRotate = isFigureNotCollide(params);
   
   if (!canRotate)
-    params->figure->rotation--;
-  if (params->figure->rotation < 0)
-    params->figure->rotation = 3;  
+    params->figure->rotation = params->figure->rotation - 1 >= 0 ? params->figure->rotation - 1 : 3;
   
   addFigure(params);
+}
+
+int **allocate2DArray(int nRows, int nCols) {
+  int **arr = (int **)calloc(nRows, sizeof(int *));
+  for (size_t rowIdx = 0; rowIdx < (size_t)nRows; rowIdx++)
+    arr[rowIdx] = (int *)calloc(nCols, sizeof(int));
+  return arr;
 }

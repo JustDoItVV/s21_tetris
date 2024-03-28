@@ -53,3 +53,7 @@ dkms.conf
 
 .vscode/
 tetris_cli
+tetris_test
+*.gcda
+*.gcno
+report/
