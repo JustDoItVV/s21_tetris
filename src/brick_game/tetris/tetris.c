@@ -97,7 +97,7 @@ int generateRandomFigure(int **next) {
       next[row][col] = 0;
   
   for (int i = 1; i < 8; i += 2)
-    next[figures[type][i - 1] + 1][figures[type][i] + 1] = 1;
+    next[figures[type][i - 1] + 1][figures[type][i] + 1] = type + 1;
   
   return type;
 }
@@ -132,7 +132,7 @@ void addFigure(GameParams_t *params) {
   for (int i = 1; i < 8; i += 2) {
     int xx = (int)round(figures[type][i] * cos(M_PI_2 * rotation) + figures[type][i - 1] * sin(M_PI_2 * rotation));
     int yy = (int)round(-figures[type][i] * sin(M_PI_2 * rotation) + figures[type][i - 1] * cos(M_PI_2 * rotation));
-    params->data->field[yy + y][xx + x] = 1;
+    params->data->field[yy + y][xx + x] = type + 1;
   }
 }
 
