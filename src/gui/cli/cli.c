@@ -3,6 +3,14 @@
 void initGui() {
   setlocale(LC_ALL, "");
   initscr();
+  start_color();
+  init_pair(1, COLOR_CYAN, COLOR_CYAN);
+  init_pair(2, COLOR_BLUE, COLOR_BLUE);
+  init_pair(3, COLOR_RED, COLOR_YELLOW);
+  init_pair(4, COLOR_YELLOW, COLOR_YELLOW);
+  init_pair(5, COLOR_GREEN, COLOR_GREEN);
+  init_pair(6, COLOR_MAGENTA, COLOR_MAGENTA);
+  init_pair(7, COLOR_RED, COLOR_RED);
   cbreak();
   noecho();
   curs_set(0);
@@ -54,14 +62,14 @@ void gameLoop() {
     
     pressedKey = getch();
     action = getAction(pressedKey);
-    if (action != Pass) {
+    if (action != Up) {
       userInput(action, hold);
     }
   }
 }
 
 UserAction_t getAction(int pressedKey) {
-  UserAction_t action = Pass;
+  UserAction_t action = Up;
 
   if (pressedKey == 10)
     action = Start;
@@ -73,8 +81,6 @@ UserAction_t getAction(int pressedKey) {
     action = Left;
   else if (pressedKey == KEY_RIGHT)
     action = Right;
-  else if (pressedKey == KEY_UP)
-    action = Up;
   else if (pressedKey == KEY_DOWN)
     action = Down;
   else if (pressedKey == 'r')
@@ -106,8 +112,10 @@ void drawField(int **field) {
   for (int row = 0; row < FIELD_SIZE_Y; row++)
     for (int col = 0; col < FIELD_SIZE_X; col++)
       if (field[row + 3][col + 3]) {
+        attron(COLOR_PAIR(field[row + 3][col + 3]));
         mvaddch(1 + row, 1 + col * 2, ACS_CKBOARD);
         mvaddch(1 + row, 1 + col * 2 + 1, ACS_CKBOARD);
+        attroff(COLOR_PAIR(field[row + 3][col + 3]));
       }
   move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);      
 }
@@ -121,8 +129,10 @@ void drawInfo(GameInfo_t *data) {
   for (int row = 0; row < FIGURE_HEIGHT; row++)
     for (int col = 0; col < FIGURE_WIDTH; col++) {
       if (data->next[row][col]) {
+        attron(COLOR_PAIR(data->next[row][col]));
         mvaddch(12 + row, FIELD_SIZE_X * 2 + 3 + col * 2, ACS_CKBOARD);
         mvaddch(12 + row, FIELD_SIZE_X * 2 + 3 + col * 2 + 1, ACS_CKBOARD);
+        attroff(COLOR_PAIR(data->next[row][col]));
       }
     }
   move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);
