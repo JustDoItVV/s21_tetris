@@ -28,21 +28,21 @@
  *
  * Initialize ncurses cli window, ncurses settings, colors
  ************************************************************/
-void initGui();
+void initGui(void);
 
 /************************************************************
  * @brief GUI destcrution
  *
  * Destroy ncurses window, closing application
  ************************************************************/
-void destroyGui();
+void destroyGui(void);
 
 /************************************************************
  * @brief Game main loop
  *
  * Game main loop with drawing screens, processing user input.
  ************************************************************/
-void gameLoop();
+void gameLoop(void);
 
 /************************************************************
  * @brief Get user action
@@ -59,7 +59,7 @@ UserAction_t getAction(int pressedKey);
  * @param pressedKey Keyboard button char or int
  * @return UserACtion_t
  ************************************************************/
-void drawGui();
+void drawGui(void);
 
 /************************************************************
  * @brief Draw game field

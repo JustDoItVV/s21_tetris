@@ -5,7 +5,7 @@
 
 #include "cli.h"
 
-void initGui() {
+void initGui(void) {
   setlocale(LC_ALL, "");
   initscr();
   start_color();
@@ -23,7 +23,7 @@ void initGui() {
   timeout(READ_DELAY);
 }
 
-void destroyGui() {
+void destroyGui(void) {
   printw("\nThe Game is ended. Closing application...\n");
   refresh();
   sleep(1);
@@ -32,7 +32,7 @@ void destroyGui() {
   endwin();
 }
 
-void gameLoop() {
+void gameLoop(void) {
   GameParams_t params;
   GameInfo_t data;
   Figure_t figure;
@@ -97,7 +97,7 @@ UserAction_t getAction(int pressedKey) {
   return action;
 }
 
-void drawGui() {
+void drawGui(void) {
   clear();
 
   mvhline(0, 0, ACS_HLINE, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 2);

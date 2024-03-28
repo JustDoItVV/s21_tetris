@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define M_PI_2 1.57079632679489661923
+#define PI_2 1.57079632679489661923
 
 #define FIELD_HEIGHT 26
 #define FIELD_WIDTH 16
@@ -145,7 +145,7 @@ void userInput(UserAction_t action, bool hold);
  *
  * Update current game state by shifting figure one pixel down.
  ************************************************************/
-GameInfo_t updateCurrentState();
+GameInfo_t updateCurrentState(void);
 
 typedef void (*funcPointer)(GameParams_t *params);
 
