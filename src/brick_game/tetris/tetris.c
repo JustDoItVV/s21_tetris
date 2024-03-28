@@ -1,11 +1,26 @@
+/************************************************************
+ * @file tetris.c
+ * @brief Game logic library source
+ ************************************************************/
+
 #include "tetris.h"
 
+/************************************************************
+ * @brief Finite state machine table
+ * 
+ * Finite state machine table
+ ************************************************************/
 funcPointer fsmTable[STATES_COUNT][SIGNALS_COUNT] = {
-  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL}, // Start
-  {NULL, NULL, removeParams, moveLeft, moveRight, NULL, moveDown, rotate, NULL}, // Game
-  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL, NULL}, // Gameover
+  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL}, // Start
+  {NULL, NULL, removeParams, moveLeft, moveRight, NULL, moveDown, rotate}, // Game
+  {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL}, // Gameover
 };
 
+/************************************************************
+ * @brief Figures realtive coordinates
+ * 
+ * Figures realtive coordinates
+ ************************************************************/
 int figures[7][8] = {
   {0, -1, 0, 0, 0, 1, 0, 2},
   {-1, -1, 0, -1, 0, 0, 0, 1},
@@ -16,15 +31,6 @@ int figures[7][8] = {
   {-1, -1, -1, 0, 0, 0, 0, 1},
 };
 
-/************************************************************
- * @brief User's input processing
- * 
- * Activate function, assigned to game state and action
- * into finite state model table.
- * 
- * @param action User's action
- * @param hold Parameter whether pressed key hol or not
- ************************************************************/
 void userInput(UserAction_t action, bool hold) {
   if (hold) hold = hold;
   GameParams_t *params = updateParams(NULL);
@@ -38,6 +44,7 @@ GameInfo_t updateCurrentState() {
   shift(params);
   return *params->data;
 }
+
 
 GameParams_t *updateParams(GameParams_t *params) {
   static GameParams_t *data;

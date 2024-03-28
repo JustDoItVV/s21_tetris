@@ -1,6 +1,11 @@
 #ifndef TETRIS_H
 #define TETRIS_H
 
+/************************************************************
+ * @file tetris.h
+ * @brief Game logic library header
+ ************************************************************/
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,15 +21,27 @@
 #define PIXEL_EMPTY 0
 #define PIXEL_FIGURE 1
 
-#define STATES_COUNT 6
-#define SIGNALS_COUNT 9
+#define STATES_COUNT 3
+#define SIGNALS_COUNT 8
 
+/************************************************************
+ * @brief States for fsm
+ * 
+ * Game states, used as states (rows) for finite state 
+ * machine table
+ ************************************************************/
 typedef enum {
     START = 0,
     GAME,
     GAMEOVER,
 } GameState_t;
 
+/************************************************************
+ * @brief Signals for fsm
+ * 
+ * User input, used as signals (columnss) for finite state 
+ * machine table
+ ************************************************************/
 typedef enum {
   Start,
   Pause,
@@ -95,30 +112,182 @@ typedef struct {
     Figure_t *figure;
 } GameParams_t;
 
+/************************************************************
+ * @brief User's input processing
+ * 
+ * Activate function, assigned to game state and action
+ * into finite state model table.
+ * 
+ * @param action User's action
+ * @param hold Parameter whether pressed key hol or not
+ ************************************************************/
 void userInput(UserAction_t action, bool hold);
+
+/************************************************************
+ * @brief Update current game state
+ * 
+ * Update current game state by shifting figure one pixel down.
+ ************************************************************/
 GameInfo_t updateCurrentState();
 
 typedef void (*funcPointer)(GameParams_t *params);
 
+/************************************************************
+ * @brief Update game parameters
+ * 
+ * Update game parameters in static variable.
+ * 
+ * @param params Pointer to GameParams_t struct
+ * @return GameParams_t
+ ************************************************************/
 GameParams_t *updateParams(GameParams_t *params);
+
+/************************************************************
+ * @brief Initialize game parameters
+ * 
+ * Initialize game parameters: allocate memory for 
+ * arrays, assign inital values to game data.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void initializeParams(GameParams_t *params);
+
+/************************************************************
+ * @brief Remove game parameters
+ * 
+ * Clear allocated memory for arrays, assign null pointers.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void removeParams(GameParams_t *params);
+
+/************************************************************
+ * @brief Reset game field
+ * 
+ * Reset game field to inital state.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void resetField(GameParams_t *params);
 
+/************************************************************
+ * @brief Start game
+ * 
+ * Change game state to START, spawns next figure
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void startGame(GameParams_t *params);
+
+/************************************************************
+ * @brief Generate random figure
+ * 
+ * Generate random number of figure
+ * 
+ * @param params Pointer to the next array for preview
+ * @return Figure type number in figures array
+ ************************************************************/
 int generateRandomFigure(int **next);
+
+/************************************************************
+ * @brief Spawn next figure
+ * 
+ * Spawn next figure on field above the visible screen.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void spawnNextFigure(GameParams_t *params);
+
+/************************************************************
+ * @brief Move figure to the left
+ * 
+ * Move figure one pixel left if possible.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void moveLeft(GameParams_t *params);
+
+/************************************************************
+ * @brief Move figure to the right
+ * 
+ * Move figure one pixel right if possible.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void moveRight(GameParams_t *params);
+
+/************************************************************
+ * @brief Rotate figure clockwise
+ * 
+ * Move figure clockwise to 90 degrees if possible.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void rotate(GameParams_t *params);
+
+/************************************************************
+ * @brief Move figure down to the end
+ * 
+ * Move figure down whil possible.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void moveDown(GameParams_t *params);
+
+/************************************************************
+ * @brief Shift figure down
+ * 
+ * Shift figure down one pixel if possible or active 
+ * attach function.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void shift(GameParams_t *params);
+
+/************************************************************
+ * @brief Attach
+ * 
+ * Clear filled rows, update score, spawn next figure and
+ * check if gameover.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void attach(GameParams_t *params);
 
+/************************************************************
+ * @brief Add figure to the field
+ * 
+ * Add figure to the field.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void addFigure(GameParams_t *params);
+
+/************************************************************
+ * @brief Check if figure collides
+ * 
+ * Check if figure collides during moving, shiftig, rotating.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 bool isFigureNotCollide(GameParams_t *params);
+
+/************************************************************
+ * @brief Remove figure from field
+ * 
+ * Remove figure from field.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 void clearFigure(GameParams_t *params);
 
+/************************************************************
+ * @brief Allocate memory for 2d array
+ * 
+ * Dynamically allocate memory for 2d array.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
 int **allocate2DArray(int nRows, int nCols);
 
 #endif
