@@ -58,3 +58,5 @@ tetris_test
 *.gcno
 report/
 docs/
+dist/
+build/
