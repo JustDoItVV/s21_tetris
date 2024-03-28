@@ -37,7 +37,7 @@ void userInput(UserAction_t action, bool hold) {
   if (func) func(params);
 }
 
-GameInfo_t updateCurrentState() {
+GameInfo_t updateCurrentState(void) {
   GameParams_t *params = updateParams(NULL);
   shift(params);
   return *params->data;
@@ -150,10 +150,10 @@ void addFigure(GameParams_t *params) {
   int rotation = params->figure->rotation;
 
   for (int i = 1; i < 8; i += 2) {
-    int xx = (int)round(figures[type][i] * cos(M_PI_2 * rotation) +
-                        figures[type][i - 1] * sin(M_PI_2 * rotation));
-    int yy = (int)round(-figures[type][i] * sin(M_PI_2 * rotation) +
-                        figures[type][i - 1] * cos(M_PI_2 * rotation));
+    int xx = (int)round(figures[type][i] * cos(PI_2 * rotation) +
+                        figures[type][i - 1] * sin(PI_2 * rotation));
+    int yy = (int)round(-figures[type][i] * sin(PI_2 * rotation) +
+                        figures[type][i - 1] * cos(PI_2 * rotation));
     params->data->field[yy + y][xx + x] = type + 1;
   }
 }
@@ -166,10 +166,10 @@ bool isFigureNotCollide(GameParams_t *params) {
 
   bool isNotCollide = true;
   for (int i = 1; i < 8 && isNotCollide; i += 2) {
-    int xx = (int)round(figures[type][i] * cos(M_PI_2 * rotation) +
-                        figures[type][i - 1] * sin(M_PI_2 * rotation));
-    int yy = (int)round(-figures[type][i] * sin(M_PI_2 * rotation) +
-                        figures[type][i - 1] * cos(M_PI_2 * rotation));
+    int xx = (int)round(figures[type][i] * cos(PI_2 * rotation) +
+                        figures[type][i - 1] * sin(PI_2 * rotation));
+    int yy = (int)round(-figures[type][i] * sin(PI_2 * rotation) +
+                        figures[type][i - 1] * cos(PI_2 * rotation));
     if (params->data->field[yy + y][xx + x]) isNotCollide = false;
   }
 
@@ -183,10 +183,10 @@ void clearFigure(GameParams_t *params) {
   int rotation = params->figure->rotation;
 
   for (int i = 1; i < 8; i += 2) {
-    int xx = (int)round(figures[type][i] * cos(M_PI_2 * rotation) +
-                        figures[type][i - 1] * sin(M_PI_2 * rotation));
-    int yy = (int)round(-figures[type][i] * sin(M_PI_2 * rotation) +
-                        figures[type][i - 1] * cos(M_PI_2 * rotation));
+    int xx = (int)round(figures[type][i] * cos(PI_2 * rotation) +
+                        figures[type][i - 1] * sin(PI_2 * rotation));
+    int yy = (int)round(-figures[type][i] * sin(PI_2 * rotation) +
+                        figures[type][i - 1] * cos(PI_2 * rotation));
     params->data->field[yy + y][xx + x] = 0;
   }
 }
