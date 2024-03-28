@@ -183,17 +183,21 @@ void shift(GameParams_t *params) {
 void attach(GameParams_t *params) {
   int rows = 0;
   for (int row = FIELD_HEIGHT - 4; row > 2; row--) {
-    int rowBlocks = 0;
+    int rowBlocks;
+    bool cycle = true;
+    while (cycle) {
+      rowBlocks = 0;
+      for (int col = 3; col < FIELD_WIDTH - 3; col++)
+        if (params->data->field[row][col])
+          rowBlocks++;
 
-    for (int col = 3; col < FIELD_WIDTH - 3; col++)
-      if (params->data->field[row][col])
-        rowBlocks++;
-
-    if (rowBlocks == FIELD_WIDTH - 6) {
-      rows++;
-      for (int i = row; i > 1; i--)
-        for (int col = 3; col < FIELD_WIDTH - 3; col++)
-          params->data->field[i][col] = params->data->field[i - 1][col];
+      if (rowBlocks == FIELD_WIDTH - 6) {
+        rows++;
+        for (int i = row; i > 1; i--)
+          for (int col = 3; col < FIELD_WIDTH - 3; col++)
+            params->data->field[i][col] = params->data->field[i - 1][col];
+      } else
+        cycle = false;
     }
   }
 

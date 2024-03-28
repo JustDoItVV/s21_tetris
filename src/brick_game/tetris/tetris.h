@@ -34,7 +34,6 @@ typedef enum {
   Up,
   Down,
   Action,
-  Pass,
 } UserAction_t;
 
 typedef struct {

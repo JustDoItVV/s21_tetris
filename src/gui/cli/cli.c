@@ -54,14 +54,14 @@ void gameLoop() {
     
     pressedKey = getch();
     action = getAction(pressedKey);
-    if (action != Pass) {
+    if (action != Up) {
       userInput(action, hold);
     }
   }
 }
 
 UserAction_t getAction(int pressedKey) {
-  UserAction_t action = Pass;
+  UserAction_t action = Up;
 
   if (pressedKey == 10)
     action = Start;
@@ -73,8 +73,6 @@ UserAction_t getAction(int pressedKey) {
     action = Left;
   else if (pressedKey == KEY_RIGHT)
     action = Right;
-  else if (pressedKey == KEY_UP)
-    action = Up;
   else if (pressedKey == KEY_DOWN)
     action = Down;
   else if (pressedKey == 'r')
