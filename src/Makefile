@@ -1,7 +1,7 @@
 CC := gcc
 CFLAGS := -I./brick_game/tetris -I./gui/cli -Wall -Wextra -Werror -std=c11 -Wpedantic
 LDFLAGS := -L./brick_game/tetris -ltetris_game -lncurses
-LIB_FLAGS := $(shell pkg-config check ncurses --static --cflags --libs)
+LIB_FLAGS := $(shell pkg-config check ncursesw --static --cflags --libs)
 GCOV_FLAGS := -fprofile-arcs -ftest-coverage
 
 OS := $(shell uname -s)
@@ -66,10 +66,10 @@ gcov_report :
 	open $(REPORT_DIR)/coverage.html
 
 format :
-	clang-format --style=file:"../materials/linters/.clang-format" -i *.c *.h */*.c */*.h */*/*.c */*/*.h
+	clang-format --style=file:"../materials/linters/.clang-format" -i *.c $(TESTS_DIR)/*.c $(TESTS_DIR)/*.h */*/*.c */*/*.h
 
 check :
-	clang-format --style=file:"../materials/linters/.clang-format" -n *.c *.h */*.c */*.h */*/*.c */*/*.h
+	clang-format --style=file:"../materials/linters/.clang-format" -n *.c */*.c */*.h */*/*.c */*/*.h
 
 build_dir :
 	mkdir -p $(BUILD_DIR)
