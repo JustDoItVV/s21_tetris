@@ -3,7 +3,7 @@
  * @author lucamorv
  * @version 1.0
  * @file tetris_cli.c
- * @brief Game logic  library
+ * @brief Entry point
  ************************************************************/
 
 #include "gui/cli/cli.h"

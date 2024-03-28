@@ -12,7 +12,7 @@
  ************************************************************/
 funcPointer fsmTable[STATES_COUNT][SIGNALS_COUNT] = {
   {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL}, // Start
-  {NULL, NULL, removeParams, moveLeft, moveRight, NULL, moveDown, rotate}, // Game
+  {NULL, pauseGame, removeParams, moveLeft, moveRight, NULL, moveDown, rotate}, // Game
   {startGame, NULL, removeParams, NULL, NULL, NULL, NULL, NULL}, // Gameover
 };
 
@@ -233,51 +233,63 @@ void attach(GameParams_t *params) {
 }
 
 void moveLeft(GameParams_t *params) {
-  clearFigure(params);
-  params->figure->x--;
-  bool canMove = isFigureNotCollide(params);  
-  
-  if (!canMove)
-    params->figure->x++;
-  
-  addFigure(params);
+  if (!params->data->pause) {
+    clearFigure(params);
+    params->figure->x--;
+    bool canMove = isFigureNotCollide(params);  
+    
+    if (!canMove)
+      params->figure->x++;
+    
+    addFigure(params);
+  }
 }
 
 void moveRight(GameParams_t *params) {
-  clearFigure(params);
-  params->figure->x++;
-  bool canMove = isFigureNotCollide(params);  
-  
-  if (!canMove)
-    params->figure->x--;
-  
-  addFigure(params);
+  if (!params->data->pause) {
+    clearFigure(params);
+    params->figure->x++;
+    bool canMove = isFigureNotCollide(params);  
+    
+    if (!canMove)
+      params->figure->x--;
+    
+    addFigure(params);
+  }
 }
 
 void moveDown(GameParams_t *params) {
-  clearFigure(params);
-  bool canMove = true;
-  while (canMove) {
-    params->figure->y++;
-    canMove = isFigureNotCollide(params);
+  if (!params->data->pause) {
+    clearFigure(params);
+    bool canMove = true;
+    while (canMove) {
+      params->figure->y++;
+      canMove = isFigureNotCollide(params);
+      
+      if (!canMove)
+        params->figure->y--;
+    }
     
-    if (!canMove)
-      params->figure->y--;
+    addFigure(params);
+    attach(params);
   }
-  
-  addFigure(params);
-  attach(params);
 }
 
 void rotate(GameParams_t *params) {
-  clearFigure(params);
-  params->figure->rotation = params->figure->rotation + 1 <= 3 ? params->figure->rotation + 1 : 0;
-  bool canRotate = isFigureNotCollide(params);
-  
-  if (!canRotate)
-    params->figure->rotation = params->figure->rotation - 1 >= 0 ? params->figure->rotation - 1 : 3;
-  
-  addFigure(params);
+  if (!params->data->pause) {
+    clearFigure(params);
+    params->figure->rotation = params->figure->rotation + 1 <= 3 ? params->figure->rotation + 1 : 0;
+    bool canRotate = isFigureNotCollide(params);
+    
+    if (!canRotate)
+      params->figure->rotation = params->figure->rotation - 1 >= 0 ? params->figure->rotation - 1 : 3;
+    
+    addFigure(params);
+  }
+}
+
+void pauseGame(GameParams_t *params) {
+  params->data->pause = !params->data->pause;
 }
 
 int **allocate2DArray(int nRows, int nCols) {

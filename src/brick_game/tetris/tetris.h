@@ -255,6 +255,15 @@ void shift(GameParams_t *params);
 void attach(GameParams_t *params);
 
 /************************************************************
+ * @brief Pause game
+ * 
+ * Pause game.
+ * 
+ * @param params Pointer to GameParams_t struct
+ ************************************************************/
+void pauseGame(GameParams_t *params);
+
+/************************************************************
  * @brief Add figure to the field
  * 
  * Add figure to the field.

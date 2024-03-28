@@ -48,7 +48,7 @@ void gameLoop() {
 
   while (params.isActive) {
     if (counter >= 1.50 - params.data->speed * SPEED_RATE) {
-      if (params.state == GAME) {
+      if (params.state == GAME && !params.data->pause) {
         updateCurrentState();
       }
       counter = 0.;
@@ -64,6 +64,9 @@ void gameLoop() {
       drawField(params.data->field);
     } else if (params.state == GAMEOVER)
       drawGameoverScreen(params.data);
+    
+    if (params.data->pause)
+      mvprintw(1 + FIELD_SIZE_Y / 2, FIELD_SIZE_X - 1, "PAUSE");
     
     pressedKey = getch();
     action = getAction(pressedKey);
