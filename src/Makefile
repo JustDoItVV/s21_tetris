@@ -1,10 +1,14 @@
 CC := gcc
-CFLAGS := -I./brick_game/tetris -I./gui/cli -Wall -Wextra -Werror -std=c11 -Wpedantic
-LDFLAGS := -L./brick_game/tetris -ltetris_game -lncurses
-LIB_FLAGS := $(shell pkg-config check ncursesw --static --cflags --libs)
+CFLAGS := -Wall -Wextra -Werror -std=c11 -Wpedantic
 GCOV_FLAGS := -fprofile-arcs -ftest-coverage
 
 OS := $(shell uname -s)
+
+ifeq ($(OS), Darwin)
+	LIB_FLAGS := $(shell pkg-config --static --cflags --libs check ncurses)
+else
+	LIB_FLAGS := $(shell pkg-config --static --cflags --libs check ncursesw)
+endif
 
 PROJECT := tetris_cli
 GUI := gui/cli/cli.c
@@ -25,7 +29,7 @@ install-sanitized : tetris.a
 	$(CC) $(CFLAGS) $(PROJECT).c $(GUI) $(BUILD_DIR)/tetris.a -o $(BUILD_DIR)/$(PROJECT) $(LIB_FLAGS) -fsanitize=address
 
 tetris.a : build_dir
-	$(CC) $(CFLAGS) -c brick_game/tetris/tetris.c -o $(BUILD_DIR)/tetris.o $(LIB_FLAGS)
+	$(CC) $(CFLAGS) -c brick_game/tetris/tetris.c -o $(BUILD_DIR)/tetris.o
 	ar rc $(BUILD_DIR)/tetris.a $(BUILD_DIR)/tetris.o
 	ranlib $(BUILD_DIR)/tetris.a
 	rm -rf $(BUILD_DIR)/tetris.o
