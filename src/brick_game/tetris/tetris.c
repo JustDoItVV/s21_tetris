@@ -30,7 +30,7 @@ int figures[FIGURES_COUNT][8] = {
 };
 
 void userInput(UserAction_t action, bool hold) {
-  if (hold) hold = hold;
+  if (hold) printf(" ");
   GameParams_t *params = updateParams(NULL);
   GameState_t state = params->state;
   funcPointer func = fsmTable[state][action];
@@ -109,7 +109,6 @@ void removeParams(GameParams_t *params) {
 }
 
 int generateRandomFigure(int **next) {
-  srand(time(NULL));
   int type = rand() % FIGURES_COUNT;
 
   for (int row = 0; row < FIGURE_HEIGHT; row++)
@@ -129,8 +128,8 @@ void startGame(GameParams_t *params) {
   params->data->high_score = highScore;
   fclose(fp);
   params->data->score = 0;
-  params->data->level = 1;
-  params->data->speed = 1;
+  params->data->level = LEVEL_MIN;
+  params->data->speed = SPEED_MIN;
   params->state = GAME;
   spawnNextFigure(params);
 }

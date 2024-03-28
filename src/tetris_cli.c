@@ -9,6 +9,7 @@
 #include "gui/cli/cli.h"
 
 int main() {
+  srand(time(NULL));
   initGui();
   gameLoop();
   destroyGui();

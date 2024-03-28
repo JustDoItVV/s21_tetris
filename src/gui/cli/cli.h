@@ -5,6 +5,7 @@
  * @file cli.h
  * @brief CLI GUI header
  ************************************************************/
+#define _XOPEN_SOURCE_EXTENDED
 
 #include <locale.h>
 #include <ncurses.h>
