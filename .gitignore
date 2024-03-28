@@ -57,3 +57,4 @@ tetris_test
 *.gcda
 *.gcno
 report/
+docs/

@@ -16,6 +16,15 @@ int figures[7][8] = {
   {-1, -1, -1, 0, 0, 0, 0, 1},
 };
 
+/************************************************************
+ * @brief User's input processing
+ * 
+ * Activate function, assigned to game state and action
+ * into finite state model table.
+ * 
+ * @param action User's action
+ * @param hold Parameter whether pressed key hol or not
+ ************************************************************/
 void userInput(UserAction_t action, bool hold) {
   if (hold) hold = hold;
   GameParams_t *params = updateParams(NULL);

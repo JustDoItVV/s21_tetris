@@ -27,13 +27,9 @@ rebuild : clean install
 clean :
 	rm -rf gui.a tetris.a tetris_cli
 
-dvi:  
-ifeq ($(OS), Darwin)
-#	open ./documentation.md
-else
-#	cat ./documentation.md
-endif
-
+dvi :
+	doxygen
+	cd docs/latex && make all
 
 dist :
 

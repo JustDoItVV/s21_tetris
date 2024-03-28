@@ -36,6 +36,19 @@ typedef enum {
   Action,
 } UserAction_t;
 
+/************************************************************
+ * @brief Game data struct
+ * 
+ * Game logic data
+ * 
+ * @param field Game field with borders
+ * @param next Next spafn figure for preview
+ * @param score Game score
+ * @param high_score Game high score from file
+ * @param level Gamel level, max 10
+ * @param speed Game speed, max 10
+ * @param pause Pause flag
+ ************************************************************/
 typedef struct {
   int **field;
   int **next;
@@ -46,6 +59,17 @@ typedef struct {
   int pause;
 } GameInfo_t;
 
+/************************************************************
+ * @brief Figure data struct
+ * 
+ * Current and next figure parameters
+ * 
+ * @param typeNext Type of next figure
+ * @param type Type of current figure
+ * @param rotation Number of rotation to PI/2 angle: 0..3
+ * @param x Field x coordinate of figure center
+ * @param y Field y coordinate of figure center
+ ************************************************************/
 typedef struct {
   int typeNext;
   int type;
@@ -54,7 +78,17 @@ typedef struct {
   int y;
 } Figure_t;
 
-typedef struct gameParams {
+/************************************************************
+ * @brief Game parameters struct
+ * 
+ * All game parameters with current field, figure, state
+ * 
+ * @param data Game data with field
+ * @param state Game current state
+ * @param isActive Flag for activate game loop
+ * @param figure Current figure data
+ ************************************************************/
+typedef struct {
     GameInfo_t *data;
     GameState_t state;
     bool isActive;
