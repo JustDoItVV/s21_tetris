@@ -65,8 +65,10 @@ void gameLoop(void) {
     } else if (params.state == GAMEOVER)
       drawGameoverScreen(params.data);
 
-    if (params.data->pause)
+    if (params.data->pause) {
       mvprintw(1 + FIELD_SIZE_Y / 2, FIELD_SIZE_X - 1, "PAUSE");
+      move(FIELD_SIZE_Y + 1, FIELD_SIZE_X * 2 + INFO_SIZE_X * 2 + 3);
+    }
 
     pressedKey = getch();
     action = getAction(pressedKey);
